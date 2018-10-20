@@ -9,11 +9,14 @@ namespace AvlThree
     class AVLTree<T> where T : IComparable<T>
     {
         public TNode<T> Root { get; set; }
-        public void Add(TNode<T> newone)
+        public int Count { get; set; }
+        public void Add(T newData)
         {
+            var newone = new TNode<T>() { Value = newData };
             if (Root == null)
             {
                 Root = newone;
+                Count++;
                 return;
             }
             var tmpVrchol = Root;
@@ -22,8 +25,7 @@ namespace AvlThree
             {
                 if (newone.Value.CompareTo(tmpVrchol.Value) == 0)
                 {
-                    Console.WriteLine("Vrchol ma rovnake ID ako nachadzany");
-                    return;
+                    throw new Exception("Prvok s rovnakym klucom");        
                 }
                 //newone je mensi ako tmpVrchol
                 if (newone.Value.CompareTo(tmpVrchol.Value) < 0)
@@ -33,6 +35,7 @@ namespace AvlThree
                         newone.Parent = tmpVrchol;
                         tmpVrchol.Left = newone;
                         Zrotuj(newone);
+                        Count++;
                         return;
                     }
                     tmpVrchol = tmpVrchol.Left;
@@ -45,6 +48,7 @@ namespace AvlThree
                         newone.Parent = tmpVrchol;
                         tmpVrchol.Right = newone;
                         Zrotuj(newone);
+                        Count++;
                         return;
                     }
                     tmpVrchol = tmpVrchol.Right;
@@ -88,12 +92,213 @@ namespace AvlThree
                     }
                 }
             }
-
-
         }
-        public void Delete(T Node)
+        public TNode<T> Find(T data) {
+            var tmpVrch = Root;
+            while (true)
+            {
+                if (tmpVrch.Value.CompareTo(data) > 0)
+                {
+                    if (tmpVrch.Left == null)
+                    {
+                        
+                        throw new Exception("Nenajdeny prvok");
+                    }
+                    tmpVrch = tmpVrch.Left;
+                }
+                else
+                if (tmpVrch.Value.CompareTo(data) < 0)
+                {
+                    if (tmpVrch.Right == null)
+                    {
+                       
+                        throw new Exception("Nenajdeny prvok");
+                    }
+                    tmpVrch = tmpVrch.Right;
+                }
+                else if (tmpVrch.Value.CompareTo(data) == 0)
+                {
+                    return tmpVrch;
+                }
+                else if (tmpVrch == null) {
+                   
+                    throw new Exception("Nenajdeny prvok");
+                }
+                
+            }
+        }
+        public void Delete(T data)
         {
+            if (Root == null) throw new Exception("Mazanie v prazdnom strome");
+            var hladany = Find(data);
+            if (hladany == Root && Root.Vyska == 0) {
+                Root = null;
+                return;
+            }
+            var otecNahradneho = new TNode<T>();
+            var tmp = hladany;
+            // ma praveho nasledovnika
+            if (tmp.Right != null)
+            {
+                tmp = tmp.Right;
+                // nasledovnik ma lavych synov
+                if (tmp.Left != null)
+                {
+                    while (true)
+                    {
+                        if (tmp.Left != null)
+                        {
+                            tmp = tmp.Left;
+                        }
+                        else
+                        {
+                            Swap(ref hladany, ref tmp);
+                            otecNahradneho = tmp.Parent;
+                            if (tmp.Right != null)
+                            {
+                                tmp.Right.Parent = tmp.Parent;
+                                tmp.Parent.Left = tmp.Right;
+                            }
+                            else
+                            {
+                                tmp.Parent.Left = null;
+                            }
+                            Count--;
+                            Balance(otecNahradneho);
+                            break;
+                        }
+                    }
 
+                }
+                // nasledovnik nema lavych synov
+                else
+                {
+                    // nasledovnik nema ziadneho syna
+                    tmp.Parent = hladany.Parent;
+                    if (hladany != Root)
+                    {
+                        if (hladany.Parent.Right == hladany)
+                        {
+                            hladany.Parent.Right = tmp;
+                        }
+                        else
+                        {
+                            hladany.Parent.Left = tmp;
+                        }
+                    }
+                    else {
+                        Root = tmp;
+                    }
+                    if (hladany.Left != null) {
+                        tmp.Left = hladany.Left;
+                        tmp.Left.Parent = tmp;
+                    }
+                    Count--;
+                    Balance(tmp); 
+                }
+            }
+            else {
+                if (hladany.Left != null)
+                {
+                    //tento if doplneny
+                    if (hladany == Root)
+                    {
+                        Root = hladany.Left;
+                        hladany.Left.Parent = null;
+                    }
+                    else
+                    {
+                        hladany.Left.Parent = hladany.Parent;
+                        if (hladany.Parent.Left == hladany)
+                        {
+                            hladany.Parent.Left = hladany.Left;
+                        }
+                        else
+                        {
+                            hladany.Parent.Right = hladany.Left;
+                        }
+                    }
+                }
+                else {
+                    if (hladany.Parent.Left == hladany)
+                    {
+                        hladany.Parent.Left = null;
+                    }
+                    else {
+                        hladany.Parent.Right = null;
+                    }
+                }
+                Balance(hladany.Parent);
+                Count--;
+                if (hladany == Root) tmp = Root;
+            }
+        }
+        public void Balance(TNode<T> node) {
+            
+            
+            while (node != null)
+            {
+                var vyskaPraveho = node.Right == null ? 0 : node.Right.Vyska + 1;
+                var vyskaLaveho = node.Left == null ? 0 : node.Left.Vyska + 1;
+
+                node.Vyska = Math.Max(vyskaPraveho, vyskaLaveho);
+
+                if (Math.Abs(vyskaLaveho - vyskaPraveho) >= 2)
+                {
+                    node = DeleteRotacie(node);
+                }
+                else {
+                    node = node.Parent;
+                }
+
+            }
+        }
+        public TNode<T> DeleteRotacie(TNode<T> node)
+        {
+            string rotacia = "";
+            var tmp = node;
+            while (rotacia.Length < 2 && node !=null )
+            {
+                if ((node.Right == null ? 0 : node.Right.Vyska +1) >= (node.Left == null ? 0 : node.Left.Vyska +1))
+                {
+                    rotacia += "R";
+                    node = node.Right;
+                }
+                else {
+                    rotacia += "L";
+                    node = node.Left;
+                }
+                if (rotacia.Length >= 2)
+                {
+                    if (rotacia == "RR")
+                    {
+                        LavaRotacia(tmp);
+                        
+                    }
+                    else if (rotacia == "LL")
+                    {
+                        PravaRotacia(tmp);
+                       
+                    }
+                    else if (rotacia == "RL")
+                    {
+                        PravaRotacia(tmp.Right);
+                        LavaRotacia(tmp);  
+                    }
+                    else if (rotacia == "LR")
+                    {
+                        LavaRotacia(tmp.Left);
+                        PravaRotacia(tmp); 
+                    }
+                }  
+            }
+            return tmp;
+        }
+        public void Swap(ref TNode<T> deletovany,ref TNode<T> nahradny) {
+            var tmpData = deletovany.Value;
+            deletovany.Value = nahradny.Value;
+            nahradny.Value = tmpData;
+            
         }
         public void PravaRotacia(TNode<T> rotovanyVrch)
         {
@@ -195,19 +400,38 @@ namespace AvlThree
                 tmpVrchol.Vyska = Math.Max(tmpVrchol.Right == null ? 0 : tmpVrchol.Right.Vyska + 1, tmpVrchol.Left == null ? 0 : tmpVrchol.Left.Vyska + 1);
             }
         }
-        public void InOrder(TNode<T> vrchol)
+        public List<T> InOrder()
         {
-            if (vrchol.Left != null)
+            var list = new List<T>();
+            int size = 0;
+            if (Root == null) return null;
+            Stack<TNode<T>> stack = new Stack<TNode<T>>();
+            TNode<T> tmp_actual = Root;
+            TNode<T> tmp_popped;
+
+            stack.Push(Root);
+            while (stack.Count > 0 || tmp_actual != null)
             {
-                InOrder(vrchol.Left);
+                while (tmp_actual != null)
+                {
+                    if (tmp_actual != Root) stack.Push(tmp_actual);
+                    tmp_actual = tmp_actual.Left;
+                }
+
+                tmp_popped = stack.Pop();
+                list.Add(tmp_popped.Value);
+ 
+                size++;
+                tmp_actual = tmp_popped.Right;
+
             }
 
-            Console.Write(vrchol.Value);
-            if (vrchol.Right != null)
-            {
-                InOrder(vrchol.Right);
-            }
+            Console.WriteLine();
+
+            return list;
+
         }
+        
         public void LevelOrderConsole()
         {
             Queue<TNode<T>> stack = new Queue<TNode<T>>();
@@ -243,7 +467,7 @@ namespace AvlThree
                 Console.Write(indent);
                 for (int j = index; j < count; j++)
                 {
-                    if (tree.ToArray()[j] != null) Console.Write(tree.ToArray()[j].Value );
+                    if (tree.ToArray()[j] != null) Console.Write(tree.ToArray()[j].Value);
                     else Console.Write(" ");
                     Console.Write(spaces);
                     index++;
@@ -258,6 +482,7 @@ namespace AvlThree
 
             }
         }
+       
     }
 
     public class TNode<T> where T : IComparable<T>
