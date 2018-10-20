@@ -239,7 +239,7 @@ namespace AvlThree
             while (node != null)
             {
                 var vyskaPraveho = node.Right == null ? 0 : node.Right.Vyska + 1;
-                var vyskaLaveho = node.Left == null ? 0 : node.Left.Vyska + 1;
+                var vyskaLaveho = node.Left == null ? 0 : node.Left.Vyska +1 ;
 
                 node.Vyska = Math.Max(vyskaPraveho, vyskaLaveho);
 
@@ -252,6 +252,9 @@ namespace AvlThree
                 }
 
             }
+            if (Root != null) {
+                Root.Vyska = Math.Max(Root.Left == null ? 0 : Root.Left.Vyska + 1, Root.Right == null ? 0 : Root.Right.Vyska + 1);
+            }
         }
         public TNode<T> DeleteRotacie(TNode<T> node)
         {
@@ -259,14 +262,28 @@ namespace AvlThree
             var tmp = node;
             while (rotacia.Length < 2 && node !=null )
             {
-                if ((node.Right == null ? 0 : node.Right.Vyska +1) >= (node.Left == null ? 0 : node.Left.Vyska +1))
-                {
-                    rotacia += "R";
-                    node = node.Right;
+                if (rotacia.Length == 1 && node.Right != null && node.Left != null) {
+                    if (node.Right.Vyska > node.Left.Vyska) {
+                        rotacia += "R";
+                    } else if (node.Left.Vyska > node.Right.Vyska) {
+                        rotacia += "L";
+                    }
+                    else {
+                        rotacia += rotacia;
+
+                    }
                 }
                 else {
-                    rotacia += "L";
-                    node = node.Left;
+                    if ((node.Right == null ? 0 : node.Right.Vyska + 1) >= (node.Left == null ? 0 : node.Left.Vyska + 1))
+                    {
+                        rotacia += "R";
+                        node = node.Right;
+                    }
+                    else {
+
+                        rotacia += "L";
+                        node = node.Left;
+                    }
                 }
                 if (rotacia.Length >= 2)
                 {
@@ -403,7 +420,7 @@ namespace AvlThree
         public List<T> InOrder()
         {
             var list = new List<T>();
-            int size = 0;
+            
             if (Root == null) return null;
             Stack<TNode<T>> stack = new Stack<TNode<T>>();
             TNode<T> tmp_actual = Root;
@@ -420,18 +437,87 @@ namespace AvlThree
 
                 tmp_popped = stack.Pop();
                 list.Add(tmp_popped.Value);
- 
-                size++;
                 tmp_actual = tmp_popped.Right;
 
             }
 
-            Console.WriteLine();
+          //  Console.WriteLine();
 
             return list;
 
         }
-        
+        public void VyskaKontrola()
+        {
+           
+
+           
+            Stack<TNode<T>> stack = new Stack<TNode<T>>();
+            TNode<T> tmp_actual = Root;
+            TNode<T> tmp_popped;
+
+            stack.Push(Root);
+            while (stack.Count > 0 || tmp_actual != null)
+            {
+                while (tmp_actual != null)
+                {
+                    if (tmp_actual != Root) stack.Push(tmp_actual);
+                    tmp_actual = tmp_actual.Left;
+                }
+
+                tmp_popped = stack.Pop();
+                if (tmp_popped.Left == null && tmp_popped.Right == null) {
+                    if (tmp_popped.Vyska == 0)
+                    {
+             //          Console.Write("");
+                    }
+                    else {
+                        throw new Exception("ZLA VYSKA");
+                    }
+                } else if (tmp_popped.Left != null && tmp_popped.Right == null) {
+                    if (tmp_popped.Left.Vyska+1 == tmp_popped.Vyska)
+                    {
+            //           Console.Write("");
+                    }
+                    else
+                    {
+                        throw new Exception("ZLA VYSKA");
+                    }
+                }
+                else if (tmp_popped.Left == null && tmp_popped.Right != null)
+                {
+                    if (tmp_popped.Right.Vyska + 1 == tmp_popped.Vyska)
+                    {
+            //            Console.Write("");
+                    }
+                    else
+                    {
+                        throw new Exception("ZLA VYSKA");
+                    }
+                }
+                else if (tmp_popped.Left != null && tmp_popped.Right != null)
+                {
+                    var max = Math.Max(tmp_popped.Right.Vyska +1, tmp_popped.Left.Vyska +1);
+                    if (max == tmp_popped.Vyska)
+                    {
+              //          Console.Write("");
+                    }
+                    else
+                    {
+                        throw new Exception("ZLA VYSKA");
+                    }
+                }
+
+                tmp_actual = tmp_popped.Right;
+
+            }
+
+        //    Console.WriteLine();
+
+           
+
+
+
+        }
         public void LevelOrderConsole()
         {
             Queue<TNode<T>> stack = new Queue<TNode<T>>();

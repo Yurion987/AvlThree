@@ -15,12 +15,14 @@ namespace AvlThree
             stopwatch.Start();
             for (int i = 0; ; i++)
             {
+                stopwatch.Start();
                 var list = new List<int>(1000000);
                 var a = new AVLTree<int>();
 
                 var random = new Random(i);
-                for (int j = 0; j < 100; j++)
+                for (int j = 0; j < 1000; j++)
                 {
+   
                     int randomCis = random.Next(10000);
                     int randomAkcia = random.Next(100);
                     //insert
@@ -30,6 +32,7 @@ namespace AvlThree
                         {
                             randomCis = random.Next(10000);
                         }
+                       
                         list.Add(randomCis);
                         a.Add(randomCis);
                     }
@@ -41,7 +44,7 @@ namespace AvlThree
                             int c = random.Next(list.Count - 1);
                             //      Console.WriteLine("\n" + list[c] + "            \n" );
                             //   a.LevelOrderConsole();
-
+                           
                             a.Delete(list[c]);
                             list.RemoveAt(c);
                         }
@@ -49,20 +52,29 @@ namespace AvlThree
                     if (list.Count>0)
                     {
                         var listInOrder = a.InOrder();
+                       
                         for (int k = 0; k < listInOrder.Count - 1; k++)
                         {
                             if (list.Contains(listInOrder[k]))
                             {
-                                Console.WriteLine("OK");
+                           //     Console.Write("K");
                             }
                             else
                             {
-                                Console.WriteLine("-------------------------------------------");
+                                throw new Exception("PRVKY SA NEZHODUJU");
                             }
                         }
+                  //      Console.WriteLine("\n"); 
+                   //     Console.WriteLine(j);
+                        a.VyskaKontrola();
                     }
                 }
-                Console.WriteLine();
+                if (i == 70) {
+                    Console.WriteLine();
+                }
+                stopwatch.Stop();
+            //    Console.WriteLine("\n \n "+stopwatch.Elapsed+ "\n \n ");
+          //      Console.WriteLine();
             }
             /*  var list1 = a.InOrder();
               int c = 0;
