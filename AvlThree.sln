@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AvlThree", "AvlThree\AvlThree.csproj", "{00DABEEB-E846-40E4-B380-9242CD13D24D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GUI", "GUI\GUI.csproj", "{B6044671-72D5-4950-93ED-ED455B45C4BD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{00DABEEB-E846-40E4-B380-9242CD13D24D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{00DABEEB-E846-40E4-B380-9242CD13D24D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{00DABEEB-E846-40E4-B380-9242CD13D24D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6044671-72D5-4950-93ED-ED455B45C4BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6044671-72D5-4950-93ED-ED455B45C4BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6044671-72D5-4950-93ED-ED455B45C4BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6044671-72D5-4950-93ED-ED455B45C4BD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

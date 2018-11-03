@@ -1,12 +1,13 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AvlThree
+namespace GUI
 {
-    class AVLTree<T> where T : IComparable<T>
+    class AVLTree<T> : IEnumerable<T> where T : IComparable<T>
     {
         public TNode<T> Root { get; set; }
         public int Count { get; set; }
@@ -141,8 +142,7 @@ namespace AvlThree
                 {
                     if (tmpVrch.Left == null)
                     {
-
-                        throw new Exception("Nenajdeny prvok");
+                        throw new NullReferenceException("Nenajdeny prvok");
                     }
                     tmpVrch = tmpVrch.Left;
                 }
@@ -152,7 +152,7 @@ namespace AvlThree
                     if (tmpVrch.Right == null)
                     {
 
-                        throw new Exception("Nenajdeny prvok");
+                        throw new NullReferenceException("Nenajdeny prvok");
                     }
                     tmpVrch = tmpVrch.Right;
                 }
@@ -163,7 +163,7 @@ namespace AvlThree
                 else if (tmpVrch == null)
                 {
 
-                    throw new Exception("Nenajdeny prvok");
+                    throw new NullReferenceException("Nenajdeny prvok");
                 }
 
             }
@@ -172,6 +172,7 @@ namespace AvlThree
         {
             if (Root == null) throw new Exception("Mazanie v prazdnom strome");
             var hladany = FindNode(data);
+            Count = Count - 1;
             if (hladany == Root && Root.Vyska == 0)
             {
                 Root = null;
@@ -179,6 +180,7 @@ namespace AvlThree
             }
             var otecNahradneho = new TNode<T>();
             var tmp = hladany;
+            
             // ma praveho nasledovnika
             if (tmp.Right != null)
             {
@@ -205,7 +207,7 @@ namespace AvlThree
                             {
                                 tmp.Parent.Left = null;
                             }
-                            Count--;
+                            
                             Balance(otecNahradneho);
                             break;
                         }
@@ -237,7 +239,7 @@ namespace AvlThree
                         tmp.Left = hladany.Left;
                         tmp.Left.Parent = tmp;
                     }
-                    Count--;
+                    
                     Balance(tmp);
                 }
             }
@@ -276,7 +278,7 @@ namespace AvlThree
                     }
                 }
                 Balance(hladany.Parent);
-                Count--;
+               
                 if (hladany == Root) tmp = Root;
             }
         }
@@ -588,7 +590,38 @@ namespace AvlThree
                 return false;
             }
         }
-        
+        public T Max()
+        {
+            if (Root!= null) {
+                var tmpNode = Root;
+                var tmpValue = Root.Value;
+                while (true)
+                {
+                    if (tmpNode.Right != null)
+                    {
+                        tmpNode = tmpNode.Right;
+                        tmpValue = tmpNode.Value;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                return tmpValue;
+            }
+           return default(T);
+            
+        }
+
+        public IEnumerator GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
+
+        IEnumerator<T> IEnumerable<T>.GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
     }
     public class TNode<T> where T : IComparable<T>
     {
@@ -601,5 +634,7 @@ namespace AvlThree
 
 
     }
+
+   
 }
 
