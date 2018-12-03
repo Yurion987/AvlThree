@@ -30,6 +30,9 @@ namespace GUI
         }
         public string ToString(int i)
         {
+            if (i == -1) {
+                return "Supisne Cislo: " + SupisneCislo + " Adresa: " + Adresa + " Popis: " + Popis + " Cislo Listu v ktorom je nehnutelnost: "+NehnutelnostVListeVlastnicta.IDListu;
+            }
             return "Supisne Cislo: " + SupisneCislo +" Adresa: "+Adresa+ " Popis: " + Popis;
         }
        

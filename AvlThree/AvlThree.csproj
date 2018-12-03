@@ -43,8 +43,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AVLTree.cs" />
+    <Compile Include="Blok.cs" />
+    <Compile Include="IRecord.cs" />
+    <Compile Include="Konstanty.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Record.cs" />
+    <Compile Include="ZnakStrom.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

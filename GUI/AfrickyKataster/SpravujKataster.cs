@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,29 +20,6 @@ namespace GUI
             KatasterCislo = new AVLTree<KatastralneUzemieCislo>();
             KatasterNazov = new AVLTree<KatastralneUzemieNazov>();
             Obyvatelstvo = new AVLTree<Obcan>();
-
-
-            // TESTOVANIE 
-          //  PridajOsobu("9876543210987654", "Jozo", "qwer", DateTime.Now);
-         //   PridajOsobu("0123456789123456", "Domco", "poiu", DateTime.Now);
-            Generator();
-
-            /* PridajNehnutelnost(1, 1, "222", "xxx", 1);
-             PridajNehnutelnost(1, 2, "111", "ppp", 1);
-
-             PridajNehnutelnost(2, 1, "321", "aaa", 2);
-             PridajNehnutelnost(2, 1, "999", "ooo", 3);
-
-             PridajVlastnika("0123456789123456", 1, 1, 0.5);
-             PridajVlastnika("9876543210987654", 1, 1, 0.5);
-
-             PridajVlastnika("0123456789123456", 2, 1, 0.5);
-
-             PridajVlastnika("0123456789123456", 1, 2, 0.5);*/
-
-            // trvale bydlisko obcana TEST CASE
-           // Uloha10("0123456789123456", 1, "kataster1");
-
         }
 
         public string PridajOsobu(string rodneCislo, string meno, string priezvisko, DateTime datumNar)
@@ -202,11 +180,14 @@ namespace GUI
                 var konkretnyKat = KatasterNazov.Find(tmpKat);
                 if (konkretnyKat.NehnutelnostiNaUzemi.Count != 0)
                 {
-                    var listNehutelnosti = konkretnyKat.NehnutelnostiNaUzemi.InOrder();
-                    foreach (var item in listNehutelnosti)
+                   
+                    foreach (var item in konkretnyKat.NehnutelnostiNaUzemi)
                     {
                         retList.Add(item.ToString());
+
                     }
+                   
+                    
                 }
                 else
                 {
@@ -226,12 +207,32 @@ namespace GUI
             var retList = new List<string>();
             try
             {
-                var findKat = KatasterCislo.Find(new KatastralneUzemieCislo() { CisloUzemia = IdKatastra });
-                //-------------------------------------------------------------------------------------------------------FOREACH STROM
-                var vlastniciNaListe = findKat.ListyVlastnictva.Find(new ListVlastnictva() { IDListu = IdListu }).Vlastnici.InOrder();
-                foreach (var item in vlastniciNaListe)
+                
+                var tmpKat = new KatastralneUzemieCislo() { CisloUzemia = IdKatastra };
+                if (KatasterCislo.Contains(tmpKat))
                 {
-                    retList.Add(item.ToString());
+                    var findKat = KatasterCislo.Find(tmpKat);
+                    var tmpList = new ListVlastnictva() { IDListu = IdListu };
+                    if (findKat.ListyVlastnictva.Contains(tmpList))
+                    {
+                        var vlastniciNaListe = findKat.ListyVlastnictva.Find(tmpList).Vlastnici;
+                        foreach (var item in vlastniciNaListe)
+                        {
+                            retList.Add(item.ToString());
+                        }
+                    }
+                    else
+                    {
+                        retList.Add("Nenajdeny list so zadanym cislom");
+                    }
+                }
+                else {
+                    retList.Add("Zle zadany Kataster");
+                }
+                
+                if (retList.Count == 0) {
+                    retList.Add("V liste niesu ziadny vlastnici");
+
                 }
                 return retList;
             }
@@ -243,38 +244,34 @@ namespace GUI
         public string Uloha12Update(string rodCislo, int IdListu, int IdKatastra, double majetkovyPod)
         {
             KatastralneUzemieCislo findKat = null;
-            AVLTree<Vlastnik> vlastniciNaListe = null;
+            ListVlastnictva vlastniciNaListe = null;
             Vlastnik konkretnyUpdatovanyVlastnik = null;
 
-            try
-            {
+         
                 findKat = KatasterCislo.Find(new KatastralneUzemieCislo() { CisloUzemia = IdKatastra });
-            }
-            catch (Exception)
-            {
-
+                if (findKat != null) {
+                    vlastniciNaListe = findKat.ListyVlastnictva.Find(new ListVlastnictva() { IDListu = IdListu });
+                    if (vlastniciNaListe != null) {
+                        konkretnyUpdatovanyVlastnik = vlastniciNaListe.Vlastnici.Find(new Vlastnik() { Majitel = new Obcan() { RodCislo = rodCislo } });
+                        if (konkretnyUpdatovanyVlastnik != null) {
+                            konkretnyUpdatovanyVlastnik.MajetkovyPodiel = majetkovyPod;
+                        }
+                        else
+                        {
+                            return "Nenajdeny Vlastnik so zadanym rodnym cislom";
+                        }
+                    }
+                    else
+                    {
+                        return "Nenajdeny list Vlastnictva";
+                    }
+                }
+                else
+                {
+                    
                 return "Nenajdene katastralne uzemie";
-            }
-
-            try
-            {
-                vlastniciNaListe = findKat.ListyVlastnictva.Find(new ListVlastnictva() { IDListu = IdListu }).Vlastnici;
-            }
-            catch (Exception)
-            {
-
-                return "Nenajdeny list Vlastnictva";
-            }
-
-            try
-            {
-                konkretnyUpdatovanyVlastnik = vlastniciNaListe.Find(new Vlastnik() { Majitel = new Obcan() { RodCislo = rodCislo } });
-            }
-            catch (Exception)
-            {
-
-                return "Nenajdeny Vlastnik so zadanym rodnym cislom";
-            }
+                }
+           
 
             konkretnyUpdatovanyVlastnik.MajetkovyPodiel = majetkovyPod;
             return "OK";
@@ -297,21 +294,23 @@ namespace GUI
                     listRet.Add("Pocet Ubytovanych: " + konkretnaNeh.ObyvateliaNehnutelnosti.Count);
                     if (konkretnaNeh.ObyvateliaNehnutelnosti.Count != 0)
                     {
-                        var tmpListOban = konkretnaNeh.ObyvateliaNehnutelnosti.InOrder();
-                        foreach (var item in tmpListOban)
+                       
+                        foreach (var item in konkretnaNeh.ObyvateliaNehnutelnosti)
                         {
                             listRet.Add(item.ToString());
                         }
+                        
                     }
-                    //------------------------------------------------------------------ STROM FOREACH
+                 
                     listRet.Add("Pocet vlastnikov: " + konkretnaNeh.NehnutelnostVListeVlastnicta.Vlastnici.Count);
                     if (konkretnaNeh.NehnutelnostVListeVlastnicta.Vlastnici.Count != 0)
                     {
-                        var tmpListVlast = konkretnaNeh.NehnutelnostVListeVlastnicta.Vlastnici.InOrder();
-                        foreach (var item in tmpListVlast)
+                       
+                        foreach (var item in konkretnaNeh.NehnutelnostVListeVlastnicta.Vlastnici)
                         {
                             listRet.Add(item.Majitel.ToString() + " Majetkovy Podiel: " + item.MajetkovyPodiel);
                         }
+                       
                     }
 
 
@@ -373,12 +372,12 @@ namespace GUI
                         if (konkretnaNeh.ObyvateliaNehnutelnosti.Count != 0)
                         {
                             retList.Add("V nehnutelnosti zije celkom: " + konkretnaNeh.ObyvateliaNehnutelnosti.Count + " obyvatelov");
-                            //----------------------------------------------------------------------------------------- STROM FOR EACH
-                            var listObcan = konkretnaNeh.ObyvateliaNehnutelnosti.InOrder();
-                            foreach (var item in listObcan)
+                            
+                            foreach (var item in konkretnaNeh.ObyvateliaNehnutelnosti)
                             {
                                 retList.Add(item.ToString());
                             }
+                          
                         }
                         else
                         {
@@ -415,14 +414,15 @@ namespace GUI
                 {
                     var konkretnyList = konkretneUzem.ListyVlastnictva.Find(tmpList);
                     var retList = new List<string>();
-                    //------------------------------------------------------FOREACH LIST
+                   
                     if (konkretnyList.Vlastnici.Count != 0)
                     {
-                        var listT = konkretnyList.Vlastnici.InOrder();
-                        foreach (var item in listT)
+                        
+                        foreach (var item in konkretnyList.Vlastnici)
                         {
                             retList.Add("Id Listu: " + konkretnyList.IDListu + " " + item.Majitel.ToString() + " Majetkovy podiel: " + item.MajetkovyPodiel);
                         }
+                       
                     }
                     else
                     {
@@ -457,21 +457,23 @@ namespace GUI
                     listRet.Add("Pocet Ubytovanych: " + konkretnaNeh.ObyvateliaNehnutelnosti.Count);
                     if (konkretnaNeh.ObyvateliaNehnutelnosti.Count != 0)
                     {
-                        var tmpListOban = konkretnaNeh.ObyvateliaNehnutelnosti.InOrder();
-                        foreach (var item in tmpListOban)
+                        
+                        foreach (var item in konkretnaNeh.ObyvateliaNehnutelnosti)
                         {
                             listRet.Add(item.ToString());
                         }
+                      
                     }
-                    //------------------------------------------------------------------ STROM FOREACH
+                    
                     listRet.Add("Pocet vlastnikov: " + konkretnaNeh.NehnutelnostVListeVlastnicta.Vlastnici.Count);
                     if (konkretnaNeh.NehnutelnostVListeVlastnicta.Vlastnici.Count != 0)
                     {
-                        var tmpListVlast = konkretnaNeh.NehnutelnostVListeVlastnicta.Vlastnici.InOrder();
-                        foreach (var item in tmpListVlast)
+                        
+                        foreach (var item in konkretnaNeh.NehnutelnostVListeVlastnicta.Vlastnici)
                         {
                             listRet.Add(item.Majitel.ToString() + " Majetkovy Podiel: " + item.MajetkovyPodiel);
                         }
+                       
                     }
 
 
@@ -498,12 +500,12 @@ namespace GUI
                 {
                     var konkretnyList = konkretneUzem.ListyVlastnictva.Find(tmpList);
                     var retList = new List<string>();
-                    //------------------------------------------------------FOREACH LIST
-                    var listT = konkretnyList.Vlastnici.InOrder();
-                    foreach (var item in listT)
+                    
+                    foreach (var item in konkretnyList.Vlastnici)
                     {
                         retList.Add("Id Listu: " + konkretnyList.IDListu + " " + item.Majitel.ToString() + " Majetkovy podiel: " + item.MajetkovyPodiel);
                     }
+                    
                     return retList;
                 }
                 else
@@ -532,11 +534,12 @@ namespace GUI
                             if (item.Uzemie.CisloUzemia == cisKat)
                             {
                                 var podiel = item.Vlastnici.Find(new Vlastnik() { Majitel = konkretnyObcan }).MajetkovyPodiel;
-                                //---------------------------------------------------------------FOREACH STROM
-                                foreach (var item2 in item.Nehnutelnosti.InOrder())
+                               
+                                foreach (var item2 in item.Nehnutelnosti)
                                 {
                                     retList.Add(item2.ToString() + " Majetkovy podiel: " + podiel);
                                 }
+                               
                             }
                         }
                         if (retList.Count == 0)
@@ -575,15 +578,16 @@ namespace GUI
                     foreach (var item in konkretnyObcan.VlastnictvoObcana)
                     {
                         var podiel = item.Vlastnici.Find(new Vlastnik() { Majitel = konkretnyObcan }).MajetkovyPodiel;
-                        //---------------------------------------------------------------FOREACH STROM
-                        foreach (var item2 in item.Nehnutelnosti.InOrder())
+                        
+                        foreach (var item2 in item.Nehnutelnosti)
                         {
                             retList.Add(item2.ToString() + " Majetkovy podiel: " + podiel);
                         }
+                        
                     }
                     if (retList.Count == 0)
                     {
-                        retList.Add("Vlastnik nema v zadanom katastry ziadne nehnutelosti");
+                        retList.Add("Vlastnik ziadne nehnutelosti");
                     }
                     return retList;
                 }
@@ -731,14 +735,15 @@ namespace GUI
                             konkretnyObcan.VlastnictvoObcana.Remove(konkretnyList);
                             konkretnyList.Vlastnici.Delete(konkretnyVlasnik);
                             var retList = new List<string>();
-                            //-------------------------------------------------------------------------------------------------------FOREACH STROM
+                           
                             if (konkretnyList.Vlastnici.Count != 0)
                             {
-                                var vlastniciNaListe = konkretnyList.Vlastnici.InOrder();
-                                foreach (var item in vlastniciNaListe)
+                               
+                                foreach (var item in konkretnyList.Vlastnici)
                                 {
                                     retList.Add(item.ToString());
                                 }
+                               
                             }
                             if (retList.Count == 0)
                             {
@@ -772,14 +777,15 @@ namespace GUI
         public List<string> Uloha15()
         {
             var retList = new List<string>();
-            //----------------------------------STROM FOR EACH
+            
             if (KatasterNazov.Count != 0)
             {
-                var listKat = KatasterNazov.InOrder();
-                foreach (var item in listKat)
+               
+                foreach (var item in KatasterNazov)
                 {
                     retList.Add(item.ToString());
                 }
+               
             }
             else
             {
@@ -798,12 +804,12 @@ namespace GUI
                 if (konkretnyKat.ListyVlastnictva.Count != 0)
                 {
                     var retList = new List<string>();
-                    //----------------------------------------------------FOREACH 
-                    var listListov = konkretnyKat.ListyVlastnictva.InOrder();
-                    foreach (var item in listListov)
+                    
+                    foreach (var item in konkretnyKat.ListyVlastnictva)
                     {
                         retList.Add(item.ToString());
                     }
+                    
                     return retList;
                 }
                 else
@@ -827,12 +833,12 @@ namespace GUI
                 if (konkretnyKat.ListyVlastnictva.Count != 0)
                 {
                     var retList = new List<string>();
-                    //----------------------------------------------------FOREACH 
-                    var listListov = konkretnyKat.ListyVlastnictva.InOrder();
-                    foreach (var item in listListov)
+                    
+                    foreach (var item in konkretnyKat.ListyVlastnictva)
                     {
                         retList.Add(item.ToString());
                     }
+                   
                     return retList;
                 }
                 else
@@ -962,15 +968,15 @@ namespace GUI
                         var konkretnaNeh = konkretnyList.Nehnutelnosti.Find(tmpNeh);
                         if (konkretnaNeh.ObyvateliaNehnutelnosti.Count != 0)
                         {
-                            //------------------------------------------------------ FOREACH STROM
-                            var listObyv = konkretnaNeh.ObyvateliaNehnutelnosti.InOrder();
-                            foreach (var item in listObyv)
+                            
+                            foreach (var item in konkretnaNeh.ObyvateliaNehnutelnosti)
                             {
                                 item.Domov = null;
                             }
+                           
 
                         }
-                        konkretnaNeh.ObyvateliaNehnutelnosti.Root = null;
+                        konkretnaNeh.ObyvateliaNehnutelnosti.Clear();
                         konkretnyList.Nehnutelnosti.Delete(konkretnaNeh);
                         konkretnaNeh.NehnutelnostVListeVlastnicta = null;
                         var konkretnyKatNazov = KatasterNazov.Find(new KatastralneUzemieNazov() { NazovUzemia = konkretnyKat.NazovUzemia });
@@ -1010,12 +1016,12 @@ namespace GUI
                     var retList = new List<string>();
                     if (konkretnyList.Nehnutelnosti.Count != 0)
                     {
-                        //-----------------------------------------------------------------------FOREACH
-                        var listL = konkretnyList.Nehnutelnosti.InOrder();
-                        foreach (var item in listL)
+                        
+                        foreach (var item in konkretnyList.Nehnutelnosti)
                         {
                             retList.Add(item.ToString(1));
                         }
+                       
                     }
                     if (retList.Count == 0)
                     {
@@ -1048,51 +1054,77 @@ namespace GUI
                     {
                         var konkretnyNew = KatasterCislo.Find(tmpKatasterNew);
                         var konkretnyKatasterNazovNew = KatasterNazov.Find(new KatastralneUzemieNazov() { NazovUzemia = konkretnyNew.NazovUzemia });
-                        //-----------------------------------------------------------------STROM FOREACH
-                        var listNehnutelnostiVKatastry = konkretnyDel.NehnutelnostiNaUzemi.InOrder();
-                        foreach (var item in listNehnutelnostiVKatastry)
+                        
+                        foreach (var item in konkretnyDel.NehnutelnostiNaUzemi)
                         {
-                            try
-                            {
-                                konkretnyNew.NehnutelnostiNaUzemi.Add(item);
-                                konkretnyKatasterNazovNew.NehnutelnostiNaUzemi.Add(item);
-                            }
-                            catch (Exception)
-                            {
 
-                                var noveId = konkretnyNew.NehnutelnostiNaUzemi.Max().SupisneCislo + 1;
-                                item.SupisneCislo = noveId;
-                                konkretnyNew.NehnutelnostiNaUzemi.Add(item);
+                            if (konkretnyNew.NehnutelnostiNaUzemi.Add(item))
+                            {
                                 konkretnyKatasterNazovNew.NehnutelnostiNaUzemi.Add(item);
                             }
+                            else {
+                                    var noveId = konkretnyNew.NehnutelnostiNaUzemi.Max().SupisneCislo + 1;
+                                    item.SupisneCislo = noveId;
+                                    konkretnyNew.NehnutelnostiNaUzemi.Add(item);
+                                    konkretnyKatasterNazovNew.NehnutelnostiNaUzemi.Add(item);
+                            }
+
+
+                            //try
+                            //{
+                            //    konkretnyNew.NehnutelnostiNaUzemi.Add(item);
+                            //    konkretnyKatasterNazovNew.NehnutelnostiNaUzemi.Add(item);
+                            //}
+                            //catch (Exception)
+                            //{
+
+                            //    var noveId = konkretnyNew.NehnutelnostiNaUzemi.Max().SupisneCislo + 1;
+                            //    item.SupisneCislo = noveId;
+                            //    konkretnyNew.NehnutelnostiNaUzemi.Add(item);
+                            //    konkretnyKatasterNazovNew.NehnutelnostiNaUzemi.Add(item);
+                            //}
                         }
-                        //-------------------------------------------------------------------STROM FOREACH
-                        var listListovVlastnictva = konkretnyDel.ListyVlastnictva.InOrder();
-
-                        foreach (var item in listListovVlastnictva)
+                       
+                        
+                        foreach (var item in konkretnyDel.ListyVlastnictva)
                         {
-                            try
+                            item.Uzemie = konkretnyKatasterNazovNew;
+                            if (konkretnyNew.ListyVlastnictva.Add(item))
                             {
-                                item.Uzemie = konkretnyKatasterNazovNew;
-                                konkretnyNew.ListyVlastnictva.Add(item);
                                 konkretnyKatasterNazovNew.ListyVlastnictva.Add(item);
                             }
-                            catch (Exception)
+                            else
                             {
-
                                 var noveId = konkretnyNew.ListyVlastnictva.Max().IDListu + 1;
-                                item.IDListu = noveId;
-                                konkretnyNew.ListyVlastnictva.Add(item);
-                                konkretnyKatasterNazovNew.ListyVlastnictva.Add(item);
+                                    item.IDListu = noveId;
+                                    konkretnyNew.ListyVlastnictva.Add(item);
+                                    konkretnyKatasterNazovNew.ListyVlastnictva.Add(item);
                             }
+
+                            //try
+                            //{
+                            //    item.Uzemie = konkretnyKatasterNazovNew;
+                            //    konkretnyNew.ListyVlastnictva.Add(item);
+                            //    konkretnyKatasterNazovNew.ListyVlastnictva.Add(item);
+                            //}
+                            //catch (Exception)
+                            //{
+
+                            //    var noveId = konkretnyNew.ListyVlastnictva.Max().IDListu + 1;
+                            //    item.IDListu = noveId;
+                            //    konkretnyNew.ListyVlastnictva.Add(item);
+                            //    konkretnyKatasterNazovNew.ListyVlastnictva.Add(item);
+                            //}
                         }
-                        konkretnyDel.NehnutelnostiNaUzemi.Root = null;
-                        konkretnyDel.ListyVlastnictva.Root = null;
+                        
+                        konkretnyDel.NehnutelnostiNaUzemi.Clear();
+                        konkretnyDel.ListyVlastnictva.Clear();
                         KatasterCislo.Delete(konkretnyDel);
+                       
 
                         var konkretnyKatNazovDel = KatasterNazov.Find(new KatastralneUzemieNazov() { NazovUzemia = konkretnyDel.NazovUzemia });
-                        konkretnyKatNazovDel.NehnutelnostiNaUzemi.Root = null;
-                        konkretnyKatNazovDel.ListyVlastnictva.Root = null;
+                        konkretnyKatNazovDel.NehnutelnostiNaUzemi.Clear();
+                        konkretnyKatNazovDel.ListyVlastnictva.Clear();
                         KatasterNazov.Delete(konkretnyKatNazovDel);
 
                         return Uloha22Info(konkretnyNew.CisloUzemia);
@@ -1124,28 +1156,27 @@ namespace GUI
             if (KatasterCislo.Contains(tmpKat))
             {
                 var konkretnyKat = KatasterCislo.Find(tmpKat);
-                //----------------------------------------------FOREACH
+               
                 var retList = new List<string>();
-                //---------------------------------------------foreach na zobrazenie
+               
                 if (konkretnyKat.ListyVlastnictva.Count != 0)
                 {
-                    var listCelyNovyKat = konkretnyKat.ListyVlastnictva.InOrder();
-                    foreach (var item in listCelyNovyKat)
+                    
+                    foreach (var item in konkretnyKat.ListyVlastnictva)
                     {
                         retList.Add(item.ToString(1));
-                        //----------------------------------------------------foreach zobrazenie
+                        
 
                         if (item.Nehnutelnosti.Count != 0)
                         {
-
-                            var listNehnutelnostiList = item.Nehnutelnosti.InOrder();
-                            foreach (var item2 in listNehnutelnostiList)
+                            
+                            foreach (var item2 in item.Nehnutelnosti)
                             {
                                 retList.Add("  " + item2.ToString());
-                            }
+                            } 
                         }
-
                     }
+                  
                     if (retList.Count == 0) retList.Add("V katastralnom uzemi niesu ziadne nehnutelnosti");
 
                 }
@@ -1173,13 +1204,22 @@ namespace GUI
             var listKat = KatasterCislo.InOrder();
             int vsetkyListy = 0;
             int vsetkyNehnutelnosti = 0;
-            foreach (var item in listKat)
+            if (listKat != null)
             {
-                vsetkyListy += item.ListyVlastnictva.Count;
-                vsetkyNehnutelnosti += item.NehnutelnostiNaUzemi.Count;
+                foreach (var item in listKat)
+                {
+                    vsetkyListy += item.ListyVlastnictva.Count;
+                    vsetkyNehnutelnosti += item.NehnutelnostiNaUzemi.Count;
+                }
+                retList.Add(vsetkyListy);
+                retList.Add(vsetkyNehnutelnosti);
             }
-            retList.Add(vsetkyListy);
-            retList.Add(vsetkyNehnutelnosti);
+            else
+            {
+                retList.Add(0);
+                retList.Add(0);
+            }
+
             return retList;
 
         }
@@ -1192,11 +1232,12 @@ namespace GUI
                 var konkretnyKat = KatasterCislo.Find(tmpKat);
                 if (konkretnyKat.NehnutelnostiNaUzemi.Count != 0)
                 {
-                    var listNehutelnosti = konkretnyKat.NehnutelnostiNaUzemi.InOrder();
-                    foreach (var item in listNehutelnosti)
+                    
+                    foreach (var item in konkretnyKat.NehnutelnostiNaUzemi)
                     {
                         retList.Add(item.ToString());
                     }
+                  
                 }
                 else
                 {
@@ -1215,13 +1256,13 @@ namespace GUI
         {
             if (Obyvatelstvo.Count != 0)
             {
-                //----------------------------------------FOREACH STROM
-                var listObyv = Obyvatelstvo.InOrder();
+                
                 var retList = new List<string>();
-                foreach (var item in listObyv)
+                foreach (var item in Obyvatelstvo)
                 {
                     retList.Add(item.ToString(1));
                 }
+               
                 return retList;
             }
             return new List<string>() { "Obyvatelia neexistuju " };
@@ -1238,14 +1279,15 @@ namespace GUI
                 {
                     var konkretnyList = konkretneUzem.ListyVlastnictva.Find(tmpList);
                     var retList = new List<string>();
-                    //------------------------------------------------------FOREACH LIST
+                    
                     if (konkretnyList.Vlastnici.Count != 0)
                     {
-                        var listT = konkretnyList.Vlastnici.InOrder();
-                        foreach (var item in listT)
+                       
+                        foreach (var item in konkretnyList.Vlastnici)
                         {
                             retList.Add("RC: " + item.Majitel.RodCislo + " MP: " + item.MajetkovyPodiel);
                         }
+                       
                     }
                     else
                     {
@@ -1277,11 +1319,11 @@ namespace GUI
                         if (item.Nehnutelnosti.Count != 0)
                         {
                             var podiel = item.Vlastnici.Find(new Vlastnik() { Majitel = konkretnyObcan }).MajetkovyPodiel;
-                            foreach (var item2 in item.Nehnutelnosti.InOrder())
+                            foreach (var item2 in item.Nehnutelnosti)
                             {
                                 retList.Add(item2.ToString() + " MP: " + podiel);
                             }
-                            //---------------------------------------------------------------FOREACH STROM
+                            
                         }
                     }
                     if (retList.Count == 0)
@@ -1338,10 +1380,14 @@ namespace GUI
         }
         public void Generator()
         {
-            Stopwatch time = Stopwatch.StartNew();
+            KatasterCislo = new AVLTree<KatastralneUzemieCislo>();
+            KatasterNazov = new AVLTree<KatastralneUzemieNazov>();
+            Obyvatelstvo = new AVLTree<Obcan>();
+
+           
             string meno = "meno";
             string priezvisko = "priezvisko";
-            string rodneCislo = "0000000000000000";  
+            string rodneCislo = "0000000000000000";
             DateTime start = new DateTime(1950, 1, 1);
             Random rnd = new Random(DateTime.Now.Millisecond);
             int range = ((TimeSpan)(new DateTime(2000, 1, 1) - start)).Days;
@@ -1365,58 +1411,58 @@ namespace GUI
                 KatasterNazov.Add(new KatastralneUzemieNazov() { CisloUzemia = i, NazovUzemia = nazovKatastra + i.ToString() });
                 KatasterCislo.Add(new KatastralneUzemieCislo() { CisloUzemia = i, NazovUzemia = nazovKatastra + i.ToString() });
             }
-            
+
             //generovanie listov
             for (int i = 1; i < GeneratorConst.PocetKatastrov + 1; i++)
             {
-                var konkretnyKatNazov= KatasterNazov.Find(new KatastralneUzemieNazov() { NazovUzemia = "kataster"+i });
+                var konkretnyKatNazov = KatasterNazov.Find(new KatastralneUzemieNazov() { NazovUzemia = "kataster" + i });
                 var konkretnyKatCislo = KatasterCislo.Find(new KatastralneUzemieCislo() { CisloUzemia = i });
-                //vsetky nehnutelnosti deleno katastre + odchylka od celkoveho poctu nehnutelnosti
-             
+               
+
                 for (int j = 1; j < GeneratorConst.PocetListovVKatastry + 1; j++)
                 {
                     var listVlast = new ListVlastnictva() { IDListu = j, Uzemie = konkretnyKatNazov };
                     konkretnyKatCislo.ListyVlastnictva.Add(listVlast);
                     konkretnyKatNazov.ListyVlastnictva.Add(listVlast);
-                    
+
                 }
             }
 
             var adresa = "adresa";
             var popis = "popis";
-      
+
             //nehnutelnosti generator
             var listKatastrov = KatasterCislo.InOrder();
             for (int j = 0; j < GeneratorConst.PocetKatastrov; j++)
             {
-                var pocetNeh = GeneratorConst.PocetNehnutelnosti / GeneratorConst.PocetKatastrov + rnd.Next(0, 50);
+                var pocetNeh = GeneratorConst.PocetNehnutelnosti / GeneratorConst.PocetKatastrov + rnd.Next(0, GeneratorConst.OdchylkaNehnutelnosti+1);
                 var cisloRandomKat = listKatastrov[j];
                 var nazovRandomKat = KatasterNazov.Find(new KatastralneUzemieNazov() { NazovUzemia = listKatastrov[j].NazovUzemia });
                 var listyVlastnictvaKatastra = nazovRandomKat.ListyVlastnictva.InOrder();
                 for (int i = 0; i < pocetNeh; i++)
                 {
                     var randomList = listyVlastnictvaKatastra[rnd.Next(0, listyVlastnictvaKatastra.Count)];
-                   
-                        var nehnutelnostMax = cisloRandomKat.NehnutelnostiNaUzemi.Max();
-                        if (nehnutelnostMax == null)
-                        {
-                            var supisCislo = 1;
-                            var nehnutelnost = new Nehnutelnost() { Adresa = adresa + supisCislo.ToString(), Popis = popis + supisCislo.ToString(), SupisneCislo = supisCislo, NehnutelnostVListeVlastnicta = randomList };
-                            cisloRandomKat.NehnutelnostiNaUzemi.Add(nehnutelnost);
-                            nazovRandomKat.NehnutelnostiNaUzemi.Add(nehnutelnost);
-                            randomList.Nehnutelnosti.Add(nehnutelnost);
-                        }
-                        else
-                        {
-                            var supisCislo = cisloRandomKat.NehnutelnostiNaUzemi.Max().SupisneCislo + 1;
-                            var nehnutelnost = new Nehnutelnost() { Adresa = adresa + supisCislo.ToString(), Popis = popis + supisCislo.ToString(), SupisneCislo = supisCislo, NehnutelnostVListeVlastnicta = randomList };
-                            cisloRandomKat.NehnutelnostiNaUzemi.Add(nehnutelnost);
-                            nazovRandomKat.NehnutelnostiNaUzemi.Add(nehnutelnost);
-                            randomList.Nehnutelnosti.Add(nehnutelnost);
-                        }
-                   
+
+                    var nehnutelnostMax = cisloRandomKat.NehnutelnostiNaUzemi.Max();
+                    if (nehnutelnostMax == null)
+                    {
+                        var supisCislo = 1;
+                        var nehnutelnost = new Nehnutelnost() { Adresa = adresa + supisCislo.ToString(), Popis = popis + supisCislo.ToString(), SupisneCislo = supisCislo, NehnutelnostVListeVlastnicta = randomList };
+                        cisloRandomKat.NehnutelnostiNaUzemi.Add(nehnutelnost);
+                        nazovRandomKat.NehnutelnostiNaUzemi.Add(nehnutelnost);
+                        randomList.Nehnutelnosti.Add(nehnutelnost);
+                    }
+                    else
+                    {
+                        var supisCislo = cisloRandomKat.NehnutelnostiNaUzemi.Max().SupisneCislo + 1;
+                        var nehnutelnost = new Nehnutelnost() { Adresa = adresa + supisCislo.ToString(), Popis = popis + supisCislo.ToString(), SupisneCislo = supisCislo, NehnutelnostVListeVlastnicta = randomList };
+                        cisloRandomKat.NehnutelnostiNaUzemi.Add(nehnutelnost);
+                        nazovRandomKat.NehnutelnostiNaUzemi.Add(nehnutelnost);
+                        randomList.Nehnutelnosti.Add(nehnutelnost);
+                    }
+
                 }
-                
+
             }
             var zakladRodCisla = "0000000000000000";
             //ubytovane obyvatelstvo
@@ -1458,15 +1504,19 @@ namespace GUI
             }
 
             //vlastnici generator
+        
+           
+           
+
             foreach (var item in listKatastrov)
             {
                 var listListovVlast = item.ListyVlastnictva.InOrder();
                 foreach (var item2 in listListovVlast)
                 {
-                 
+
                     var listRandomVlasnikov = new List<Vlastnik>();
                     var randomPocetVlastnikNaLite = rnd.Next(0, GeneratorConst.MaxPocetVlastnikov);
-                    
+
                     for (int i = 0; i < randomPocetVlastnikNaLite; i++)
                     {
                         var opakuj = false;
@@ -1478,30 +1528,180 @@ namespace GUI
 
                         for (int j = 0; j < listRandomVlasnikov.Count; j++)
                         {
-                            if (listRandomVlasnikov[j].Majitel.RodCislo == vlastnik.Majitel.RodCislo) {
+                            if (listRandomVlasnikov[j].Majitel.RodCislo == vlastnik.Majitel.RodCislo)
+                            {
                                 opakuj = true;
                                 break;
                             }
                         }
-                        if (opakuj) {
+                        if (opakuj)
+                        {
                             i--;
                         }
                         else
                         {
                             listRandomVlasnikov.Add(vlastnik);
                         }
-                    
+
                     }
-                    foreach (var item3  in listRandomVlasnikov)
+                    foreach (var item3 in listRandomVlasnikov)
                     {
                         item2.Vlastnici.Add(item3);
                         item3.Majitel.VlastnictvoObcana.Add(item2);
                     }
                 }
             }
+         
 
-            time.Stop();
-            var cas = time.Elapsed;
+        }
+        public void Uloz()
+        {
+          
+            string delimiter = ";";
+            StringBuilder sbKat = new StringBuilder();
+            foreach (var item in KatasterCislo)
+            {
+                string[] line = new string[] { item.CisloUzemia.ToString(), item.NazovUzemia };
+                sbKat.AppendLine(string.Join(delimiter, line));
+            }
+            File.WriteAllText("Katastre.csv", sbKat.ToString());
+
+            StringBuilder sbList = new StringBuilder();
+            foreach (var item in KatasterCislo)
+            {
+                foreach (var item2 in item.ListyVlastnictva)
+                {
+                    string[] line = new string[] { item2.Uzemie.NazovUzemia, item2.IDListu.ToString() };
+                    sbList.AppendLine(string.Join(delimiter,line));
+                }
+            }
+            File.WriteAllText("ListVlastnictva.csv", sbList.ToString());
+
+            StringBuilder sbObcan = new StringBuilder();
+            foreach (var item in Obyvatelstvo)
+            {
+               
+                    string[] line = new string[] { item.RodCislo, item.Meno,item.Priezvisko,item.DatumNarodenia.ToShortDateString()};
+                sbObcan.AppendLine(string.Join(delimiter, line));
+                
+            }
+            File.WriteAllText("Obcan.csv", sbObcan.ToString());
+
+            StringBuilder sbNehnutelnost = new StringBuilder();
+            foreach (var item in KatasterNazov)
+            {
+                foreach (var item2 in item.NehnutelnostiNaUzemi)
+                {
+                    string[] line = new string[] {  item2.SupisneCislo.ToString(), item2.NehnutelnostVListeVlastnicta.IDListu.ToString(), item.CisloUzemia.ToString(), item2.Adresa, item2.Popis};
+                    sbNehnutelnost.AppendLine(string.Join(delimiter, line));
+                }
+            }
+            File.WriteAllText("Nehnutelnosti.csv", sbNehnutelnost.ToString());
+
+
+            StringBuilder sbVlastik = new StringBuilder();
+            foreach (var item in KatasterNazov)
+            {
+                foreach (var item2 in item.ListyVlastnictva)
+                {
+                    foreach (var item3 in item2.Vlastnici)
+                    {
+                        string[] line = new string[] { item.CisloUzemia.ToString(), item2.IDListu.ToString(), item3.Majitel.RodCislo, item3.MajetkovyPodiel.ToString() };
+                        sbVlastik.AppendLine(string.Join(delimiter, line));
+                    } 
+                }
+            }
+            File.WriteAllText("Vlastnici.csv", sbVlastik.ToString());
+
+            StringBuilder sbDomov = new StringBuilder();
+            foreach (var item in Obyvatelstvo)
+            {
+                if (item.Domov != null)
+                {
+                    string[] line = new string[] { item.RodCislo,item.Domov.SupisneCislo.ToString(),item.Domov.NehnutelnostVListeVlastnicta.Uzemie.NazovUzemia};
+                    sbDomov.AppendLine(string.Join(delimiter, line));
+                }
+            }
+            File.WriteAllText("DomovyObcanov.csv", sbDomov.ToString());
+         
+          
+
+
+
+        }
+        public void Nacitaj() {
+
+            KatasterCislo = new AVLTree<KatastralneUzemieCislo>();
+            KatasterNazov = new AVLTree<KatastralneUzemieNazov>();
+            Obyvatelstvo = new AVLTree<Obcan>();
+
+
+            var vsetkyKatastre = File.ReadLines("Katastre.csv").ToList();
+            foreach (var item in vsetkyKatastre)
+            {
+                var line = item.Split(';');
+                var cisloUzemia = int.Parse(line[0]);
+                var nazovUzemia = line[1];
+                PridajKatastralUzemie(cisloUzemia, nazovUzemia);
+                
+            }
+            var vsetkyListy = File.ReadLines("ListVlastnictva.csv").ToList();
+            foreach (var item in vsetkyListy)
+            {
+               
+                var line = item.Split(';');
+                var cisloListu = int.Parse(line[1]);
+                var nazovUzemia = line[0];
+                PridajList(nazovUzemia,cisloListu);
+            }
+
+            var vsetciObcania = File.ReadLines("Obcan.csv").ToList();
+            foreach (var item in vsetciObcania)
+            {
+                var line = item.Split(';');
+                var rodCislo = line[0];
+                var meno = line[1];
+                var priezvisko = line[2];
+                var datumNarodenia = DateTime.Parse(line[3]);
+                var novyObcan = new Obcan() { DatumNarodenia = datumNarodenia, Meno = meno, Priezvisko = priezvisko, RodCislo = rodCislo };
+                Obyvatelstvo.Add(novyObcan);
+            }
+
+            var vsetkyNeh = File.ReadLines("Nehnutelnosti.csv").ToList();
+            foreach (var item in vsetkyNeh)
+            {
+                var line = item.Split(';');
+                var supisneCislo = int.Parse(line[0]);
+                var idListu = int.Parse(line[1]);
+                var cisloUzemia = int.Parse(line[2]);
+                var adresa = line[3];
+                var popis = line[4];
+                PridajNehnutelnost(idListu,cisloUzemia,adresa,popis,supisneCislo);
+            }
+            var vsetciVlastnici = File.ReadLines("Vlastnici.csv").ToList();
+
+            foreach (var item in vsetciVlastnici)
+            {
+               
+                var line = item.Split(';');  
+                var idListu = int.Parse(line[1]);
+                var cisloUzemia = int.Parse(line[0]);
+                var rodneCislo = line[2];
+                var podiel = double.Parse(line[3]);
+                PridajVlastnika(rodneCislo,idListu,cisloUzemia,podiel);
+            }
+
+            var domovyObyvatelo = File.ReadLines("DomovyObcanov.csv").ToList();
+
+            foreach (var item in domovyObyvatelo)
+            {
+              
+                var line = item.Split(';');
+                var nazovUzem = line[2];
+                var rodneCislo = line[0];
+                var supisCislo = int.Parse(line[1]);
+                Uloha10(rodneCislo, supisCislo, nazovUzem);
+            }
         }
     }
 }

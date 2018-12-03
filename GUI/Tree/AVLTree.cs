@@ -11,14 +11,14 @@ namespace GUI
     {
         public TNode<T> Root { get; set; }
         public int Count { get; set; }
-        public void Add(T newData)
+        public bool Add(T newData)
         {
             var newone = new TNode<T>() { Value = newData };
             if (Root == null)
             {
                 Root = newone;
                 Count++;
-                return;
+                return true;
             }
             var tmpVrchol = Root;
 
@@ -26,7 +26,7 @@ namespace GUI
             {
                 if (newone.Value.CompareTo(tmpVrchol.Value) == 0)
                 {
-                    throw new Exception("Prvok s rovnakym klucom");
+                    return false;
                 }
                 //newone je mensi ako tmpVrchol
                 if (newone.Value.CompareTo(tmpVrchol.Value) < 0)
@@ -37,7 +37,7 @@ namespace GUI
                         tmpVrchol.Left = newone;
                         Zrotuj(newone);
                         Count++;
-                        return;
+                        return true;
                     }
                     tmpVrchol = tmpVrchol.Left;
                 }
@@ -50,7 +50,7 @@ namespace GUI
                         tmpVrchol.Right = newone;
                         Zrotuj(newone);
                         Count++;
-                        return;
+                        return true;
                     }
                     tmpVrchol = tmpVrchol.Right;
                 }
@@ -136,13 +136,14 @@ namespace GUI
         }
         public T Find(T data) {
             var tmpVrch = Root;
+            if (tmpVrch == null) return default(T); 
             while (true)
             {
                 if (tmpVrch.Value.CompareTo(data) > 0)
                 {
                     if (tmpVrch.Left == null)
                     {
-                        throw new NullReferenceException("Nenajdeny prvok");
+                        return default(T);
                     }
                     tmpVrch = tmpVrch.Left;
                 }
@@ -152,7 +153,7 @@ namespace GUI
                     if (tmpVrch.Right == null)
                     {
 
-                        throw new NullReferenceException("Nenajdeny prvok");
+                        return default(T);
                     }
                     tmpVrch = tmpVrch.Right;
                 }
@@ -163,7 +164,7 @@ namespace GUI
                 else if (tmpVrch == null)
                 {
 
-                    throw new NullReferenceException("Nenajdeny prvok");
+                    return default(T);
                 }
 
             }
@@ -582,13 +583,13 @@ namespace GUI
         public bool Contains(T data) {
             try
             {
-                Find(data);
-                return true;
+                return Find(data) != null;
             }
             catch (Exception)
             {
                 return false;
             }
+              
         }
         public T Max()
         {
@@ -612,15 +613,17 @@ namespace GUI
            return default(T);
             
         }
-
-        public IEnumerator GetEnumerator()
+        public void Clear() {
+            Root = null;
+        }
+        public IEnumerator<T> GetEnumerator()
         {
-            throw new NotImplementedException();
+            return new MojEnumerator<T>(Root);
         }
 
-        IEnumerator<T> IEnumerable<T>.GetEnumerator()
+        IEnumerator IEnumerable.GetEnumerator()
         {
-            throw new NotImplementedException();
+            return GetEnumerator();
         }
     }
     public class TNode<T> where T : IComparable<T>
@@ -635,6 +638,56 @@ namespace GUI
 
     }
 
-   
+
+    class MojEnumerator<T> : IEnumerator<T> where T : IComparable<T>
+    {
+        
+        private T _result;
+        Stack<TNode<T>> _stack = new Stack<TNode<T>>();
+        private TNode<T> _current;
+      
+        public MojEnumerator(TNode<T> node)
+        {
+            _current = node;
+        }
+
+        public void Dispose()
+        {
+            _current = null;
+        }
+
+        public bool MoveNext()
+        {
+            while (_stack.Count > 0 || _current != null)
+            {
+                if (_current != null)
+                {
+                    _stack.Push(_current);
+                    _current = _current.Left;
+                }
+                else
+                {
+                    _current = _stack.Pop();
+                    _result = _current.Value;
+                    _current = _current.Right;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public void Reset()
+        {
+            throw new NotImplementedException();
+        }
+
+        public T Current
+        {
+            get { return _result; }
+        }
+
+        object IEnumerator.Current => Current;
+    }
+
 }
 

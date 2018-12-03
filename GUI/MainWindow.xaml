@@ -5,14 +5,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GUI"
         mc:Ignorable="d"
-        Title="MainWindow" Height="485.563" Width="908">
-    <Grid>
-        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Height="45" HorizontalAlignment="Left" Width="890">
-            <StackPanel Orientation="Vertical" PreviewMouseLeftButtonDown="StackPanel_PreviewMouseLeftButtonDown" >
+        Title="MainWindow" Height="485.563" Width="1060.5">
+    <Grid Margin="0,0,2,0">
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Height="45" HorizontalAlignment="Left" Width="1040">
+            <StackPanel Orientation="Vertical"  MouseLeftButtonDown="StackPanel_MouseLeftButtonDown" >
                 <Label Name="LabelKat">K:0</Label>
                 <Label Name="LabelNeh">N:0</Label>
             </StackPanel>
-            <StackPanel Orientation="Vertical"  PreviewMouseLeftButtonDown="StackPanel_PreviewMouseLeftButtonDown" >
+            <StackPanel Orientation="Vertical"  MouseLeftButtonDown="StackPanel_MouseLeftButtonDown" >
                 <Label Name="LabelList">L:0</Label>
                 <Label Name="LabelObcan">O:0</Label>
             </StackPanel>
@@ -20,8 +20,9 @@
             <Button Name="KatasterMenu" Margin="5" Width="110" Click="KatasterMenu_Click"  >Kataster</Button>
             <Button Name="ListNehnutelnostiMenu" Margin="5" Width="110" Click="ListNehnutelnostiMenu_Click"  >List Nehnutelnosti</Button>
             <Button Name="NehnutelnostiMenu" Margin="5" Width="110" Click="NehnutelnostiMenu_Click"  >Nehnutelnosti</Button>
-            <Button Name="Generator" Margin="15,5,5,5" Width="110"  >Generator</Button>
-            <Button Name="ButtonSave" Margin="15,5,5,5" Width="110"   >Uloz</Button>
+            <Button Name="Generator" Margin="15,5,5,5" Width="110" Click="Generator_Click"  >Generator</Button>
+            <Button Name="ButtonSave" Margin="15,5,5,5" Width="110" Click="ButtonSave_Click"  >Uloz</Button>
+            <Button Name="ButtonNacitaj" Margin="15,5,5,5" Width="110" Click="ButtonNacitaj_Click" >Nacitaj</Button>
         </StackPanel>
         <StackPanel Visibility="Hidden" HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Vertical" Name="ObcanPanel" Margin="10,45,0,0" Width="772">
             <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Horizontal">
@@ -45,7 +46,7 @@
                     <Label Height="30" Content="ID Listu"/>
                     <TextBox HorizontalAlignment="Left" Name="InputIDListu"  Height="30" Width="100" TextChanged="InputIDListu_TextChanged"></TextBox>
                     <Label Height="30" Content="Nazov Katastralneho Uzemia V Ktorom Je List Vlastnictva"/>
-                    <TextBox HorizontalAlignment="Left" Name="InputKatasUzemieList" Height="30" Width="140" KeyUp="InputKatasUzemieList_KeyUp"></TextBox>
+                    <TextBox BorderThickness="2" BorderBrush="Blue" HorizontalAlignment="Left" Name="InputKatasUzemieList" Height="30" Width="140" KeyUp="InputKatasUzemieList_KeyUp"></TextBox>
                     <Button Margin="0,10,0,0" Width="70" Height="30" HorizontalAlignment="Left" Name="VlozList" Click="VlozList_Click">Vloz List</Button>
                 </StackPanel>
                 <StackPanel Width="450">
@@ -57,11 +58,11 @@
             <StackPanel Orientation="Horizontal">
                 <StackPanel Height="226">
                     <Label Height="30" Content="ID Listu ktory bude zmazany"/>
-                    <TextBox HorizontalAlignment="Left" Name="InputUloha19IdListDel"  Height="30" Width="100" TextChanged="InputIDListu_TextChanged" KeyUp="InputUloha19IdListDel_KeyUp"></TextBox>
+                    <TextBox BorderThickness="2" BorderBrush="Blue" HorizontalAlignment="Left" Name="InputUloha19IdListDel"  Height="30" Width="100" TextChanged="InputIDListu_TextChanged" KeyUp="InputUloha19IdListDel_KeyUp"></TextBox>
                     <Label Height="30" Content="Cislo katastralneho uzemia"/>
-                    <TextBox HorizontalAlignment="Left" Name="InputUloha19Katcislo" Height="30" Width="140" KeyUp="InputUloha19Katcislo_KeyUp"></TextBox>
+                    <TextBox BorderThickness="2" BorderBrush="Blue" HorizontalAlignment="Left" Name="InputUloha19Katcislo" Height="30" Width="140" KeyUp="InputUloha19Katcislo_KeyUp"></TextBox>
                     <Label Height="30" Content="Cislo listu na ktory budu nehnutelnosti prevedene"/>
-                    <TextBox HorizontalAlignment="Left" Name="InputUloha19IdListNew" Height="30" Width="140" KeyUp="InputUloha19IdListNew_KeyUp"></TextBox>
+                    <TextBox BorderThickness="2" BorderBrush="Blue" HorizontalAlignment="Left" Name="InputUloha19IdListNew" Height="30" Width="140" KeyUp="InputUloha19IdListNew_KeyUp"></TextBox>
                     <Button Margin="0,10,0,0" Width="70" Height="30" HorizontalAlignment="Left" Name="DeleteList" Click="DeleteList_Click" >Zmaz list</Button>
                 </StackPanel>
                 <StackPanel Width="498" Height="220">
@@ -108,7 +109,7 @@
         <StackPanel Visibility="Hidden" HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Vertical" Name="Uloha7Panel" Margin="10,45,0,-3" Width="772">
             <Label VerticalAlignment="Top" Height="30" Content="Uloha 7 - Vypis vsetkych nehnutelnosti v zadanom katastry"/>
             <Label VerticalAlignment="Top" Height="30" Content="Nazov Katastralneho Uzemia"/>
-            <TextBox VerticalAlignment="Top" HorizontalAlignment="Left" Name="InputUloha7NazovKatastru"  Width="100" KeyUp="InputUloha7NazovKatastru_KeyUp"></TextBox>
+            <TextBox BorderThickness="2" BorderBrush="Blue" VerticalAlignment="Top" HorizontalAlignment="Left" Name="InputUloha7NazovKatastru"  Width="100" KeyUp="InputUloha7NazovKatastru_KeyUp"></TextBox>
             <ListView Name="Uloha7List" Margin="0,20" HorizontalAlignment="Left" Width="762" Height="259"></ListView>
         </StackPanel>
 
@@ -135,7 +136,7 @@
                     <Button Name="Uloha13BZmaz" Margin="60,5,0,0" Height="30" Width="100" Click="Uloha13BZmaz_Click" >Zmaz</Button>
                 </StackPanel>
             </StackPanel>
-            <ListView Name="Uloha12List" Margin="0,20" HorizontalAlignment="Left" Width="762" Height="214" PreviewMouseLeftButtonUp="Uloha12List_PreviewMouseLeftButtonUp"></ListView>
+            <ListView Name="Uloha12List" Margin="0,20" HorizontalAlignment="Left" Width="762" Height="214" SelectionChanged="Uloha12List_SelectionChanged" ></ListView>
         </StackPanel>
 
         <StackPanel Visibility="Hidden" HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Vertical" Name="Uloha1Panel" Margin="10,45,0,-2" Width="772">
@@ -207,9 +208,9 @@
         <StackPanel Visibility="Hidden" HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Vertical" Name="Uloha8Panel" Margin="10,45,0,0" Width="772">
             <StackPanel Orientation="Horizontal">
                 <Label  Height="30" Content="Rodne cislo"/>
-                <TextBox  HorizontalAlignment="Left" Name="InputUloha8RodCislo"  Width="140" KeyUp="InputUloha8RodCislo_KeyUp" />
+                <TextBox BorderThickness="2" BorderBrush="Blue"  HorizontalAlignment="Left" Name="InputUloha8RodCislo"  Width="140" KeyUp="InputUloha8RodCislo_KeyUp" />
                 <Label Margin="50,0,0,0" Height="30" Content="Cislo katastralneho uzemia"/>
-                <TextBox  Name="InputUloha8CisloKatUzem"  Width="100" TextChanged="InputUloha8CisloKatUzem_TextChanged" KeyUp="InputUloha8CisloKatUzem_KeyUp"/>
+                <TextBox BorderThickness="2" BorderBrush="Blue" Name="InputUloha8CisloKatUzem"  Width="100" TextChanged="InputUloha8CisloKatUzem_TextChanged" KeyUp="InputUloha8CisloKatUzem_KeyUp"/>
             </StackPanel>
             <ListView Name="Uloha8List" Margin="0,20" HorizontalAlignment="Left" Width="762" Height="259"></ListView>
         </StackPanel>
@@ -217,7 +218,7 @@
         <StackPanel Visibility="Hidden" HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Vertical" Name="Uloha9Panel" Margin="10,45,0,0" Width="772">
             <StackPanel Orientation="Horizontal">
                 <Label  Height="30" Content="Rodne cislo"/>
-                <TextBox  HorizontalAlignment="Left" Name="InputUloha9RodCislo"  Width="140" KeyUp="InputUloha9RodCislo_KeyUp"  />
+                <TextBox BorderThickness="2" BorderBrush="Blue" HorizontalAlignment="Left" Name="InputUloha9RodCislo"  Width="140" KeyUp="InputUloha9RodCislo_KeyUp"  />
             </StackPanel>
             <ListView Name="Uloha9List" Margin="0,20" HorizontalAlignment="Left" Width="762" Height="259"></ListView>
         </StackPanel>
@@ -253,7 +254,7 @@
                 <Label Height="30" Content="ID Katastralneho Uzemia"/>
                 <TextBox Name="InputUloha20KatCis" Margin="10"  Height="30" Width="100"  />
                 <Label Height="30" Content="Cislo listu vlastnictva"/>
-                <TextBox Name="InputUloha20ListCis" Margin="10"  Height="30" Width="100" KeyUp="InputUloha20ListCis_KeyUp" ></TextBox>
+                <TextBox BorderThickness="2" BorderBrush="Blue" Name="InputUloha20ListCis" Margin="10"  Height="30" Width="100" KeyUp="InputUloha20ListCis_KeyUp" ></TextBox>
                 <Label Height="30" Content="Supisne cislo nehnutelnosti"/>
                 <TextBox Name="InputUloha20SupisCislo" Margin="10"  Height="30" Width="100" ></TextBox>
             </StackPanel>
@@ -265,42 +266,42 @@
         <StackPanel Visibility="Hidden" HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Vertical" Name="Uloha22Panel" Margin="10,45,0,0" Width="772">
             <StackPanel Orientation="Horizontal" Height="33">
                 <Label  Height="30" Content="Cislo katastra ktory sa zmaze" />
-                <TextBox  HorizontalAlignment="Left" Name="InputUloha22CisloKatDel"  Width="140" KeyUp="InputUloha22CisloKatDel_KeyUp"  />
+                <TextBox BorderThickness="2" BorderBrush="Blue" HorizontalAlignment="Left" Name="InputUloha22CisloKatDel"  Width="140" KeyUp="InputUloha22CisloKatDel_KeyUp"  />
                 <Label Margin="50,0,0,0" Height="30" Content="Cislo katastra do ktoreho sa ulozia zaznami"/>
-                <TextBox  Name="InputUloha22CisloKatNew"  Width="100" KeyUp="InputUloha22CisloKatNew_KeyUp"/>
+                <TextBox BorderThickness="2" BorderBrush="Blue" Name="InputUloha22CisloKatNew"  Width="100" KeyUp="InputUloha22CisloKatNew_KeyUp"/>
             </StackPanel>
             <Button Width="70" Height="30" HorizontalAlignment="Right" Name="Uloha22Zmaz" Click="Uloha22Zmaz_Click"  >Zmaz</Button>
             <ListView Name="Uloha22List" Margin="0,20" HorizontalAlignment="Left" Width="762" Height="259"></ListView>
         </StackPanel>
 
-        <StackPanel Visibility="Hidden" HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Vertical" Name="UlohVsetkoPanel" Margin="10,48,0,0" Width="880">
+        <StackPanel Visibility="Hidden" HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Vertical" Name="UlohVsetkoPanel" Margin="10,48,0,0" Width="1030">
             <StackPanel Orientation="Horizontal">
                 <Label  Height="30" Content="Kat Cislo" />
-                <TextBox  HorizontalAlignment="Left" Name="VsetkoKataster"  Width="140" KeyUp="VsetkoKataster_KeyUp"   />
+                <TextBox  BorderThickness="2" BorderBrush="Blue" HorizontalAlignment="Left" Name="VsetkoKataster"  Width="140" KeyUp="VsetkoKataster_KeyUp"   />
                 <Label  Margin="73,0,0,0" Height="30" Content="Id listu"/>
-                <TextBox  Name="VsetkoListID"  Width="100" KeyUp="VsetkoListID_KeyUp"/>
-                <Label  Margin="165,0,0,0" Height="30" Content="Rodne Cislo"/>
-                <TextBox  Name="VsetkoRodCislo"  Width="100" KeyUp="VsetkoRodCislo_KeyUp"/>
+                <TextBox  BorderThickness="2" BorderBrush="Blue" Name="VsetkoListID"  Width="100" KeyUp="VsetkoListID_KeyUp"/>
+                <Label  Margin="240,0,0,0" Height="30" Content="Rodne Cislo"/>
+                <TextBox  BorderThickness="2" BorderBrush="Blue" Name="VsetkoRodCislo"  Width="100" KeyUp="VsetkoRodCislo_KeyUp"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" Height="33">
                 <Label  Height="30" Content="Vsetky Katastre" />
                 <Label  Margin="168,0,0,0" Height="30" Content="Vsetky Listy Katastra/Obcana"/>
-                <Label  Margin="130,0,0,0" Height="30" Content="Nehnutelnosti listu/Obcana"/>
+                <Label  Margin="230,0,0,0" Height="30" Content="Nehnutelnosti listu/Obcana"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" Height="150">
                 <ListView Name="VsetkoKatastre"  HorizontalAlignment="Left" Width="200" />
-                <ListView Margin="50,0,0,0" Name="VsetkoListyKatastra"  HorizontalAlignment="Left" Width="250" />
+                <ListView Margin="50,0,0,0" Name="VsetkoListyKatastra"  HorizontalAlignment="Left" Width="351" />
                 <ListView Margin="50,0,0,0" x:Name="VsetkoListyNehnutelnosti"  HorizontalAlignment="Left" Width="300" />
             </StackPanel>
             <StackPanel Orientation="Horizontal" Height="33">
                 <Label  Height="30" Content="Obcania Katastra" />
                 <Label  Margin="320,0,0,0" Height="30" Content="Nehnutelnosti Katastra"/>
-                <Label  Margin="60,0,0,0" Height="30" Content="Vlastnici Listu/Domov Obcana"/>
+                <Label  Margin="120,0,0,0" Height="30" Content="Vlastnici Listu/Domov Obcana"/>
             </StackPanel>
             <StackPanel  Height="147" Orientation="Horizontal">
-                <ListView Name="VsetkoObcaniaKatastra"  HorizontalAlignment="Left" Width="368" PreviewMouseLeftButtonDown="VsetkoObcaniaKatastra_PreviewMouseLeftButtonDown" />
-                <ListView Margin="50,0,0,0" x:Name="VsetkoNehnutelnostiKatastra" HorizontalAlignment="Left" Width="142" />
-                <ListView Margin="50,0,0,0" x:Name="VsetkoVlastnikove"  HorizontalAlignment="Left" Width="260" />
+                <ListView Name="VsetkoObcaniaKatastra"  HorizontalAlignment="Left" Width="368" SelectionChanged="VsetkoObcaniaKatastra_SelectionChanged" />
+                <ListView Margin="50,0,0,0" x:Name="VsetkoNehnutelnostiKatastra" HorizontalAlignment="Left" Width="206" />
+                <ListView Margin="50,0,0,0" x:Name="VsetkoVlastnikove"  HorizontalAlignment="Left" Width="351" />
             </StackPanel>
         </StackPanel>
 

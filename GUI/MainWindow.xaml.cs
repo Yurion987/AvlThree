@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -88,18 +89,27 @@ namespace GUI
 
         private void VlozList_Click(object sender, RoutedEventArgs e)
         {
-            var IDlistu = int.Parse(InputIDListu.Text);
-            var NazovUzemia = InputKatasUzemieList.Text;
-            var uspech = AfrikaKataster.PridajList(NazovUzemia, IDlistu);
-            if (uspech == "OK")
+            try
             {
-                var nazovKatastru = InputKatasUzemieList.Text;
-                Uloha19ListKata.ItemsSource = AfrikaKataster.Uloha19NazovKat(nazovKatastru);
+                var IDlistu = int.Parse(InputIDListu.Text);
+                var NazovUzemia = InputKatasUzemieList.Text;
+                var uspech = AfrikaKataster.PridajList(NazovUzemia, IDlistu);
+                if (uspech == "OK")
+                {
+                    var nazovKatastru = InputKatasUzemieList.Text;
+                    Uloha19ListKata.ItemsSource = AfrikaKataster.Uloha19NazovKat(nazovKatastru);
+                }
+                else
+                {
+                    MessageBox.Show(uspech, "ERR");
+                }
             }
-            else
+            catch (Exception)
             {
-                MessageBox.Show(uspech, "ERR");
+
+                MessageBox.Show("Zle zadane parametre", "ERR");
             }
+            
 
         }
 
@@ -110,36 +120,52 @@ namespace GUI
 
         private void VlozKataster_Click(object sender, RoutedEventArgs e)
         {
-            var InputNazov = InputNazovKatUzemia.Text;
-            var IdKat = int.Parse(InputIDKatUzem.Text);
-            var uspech = AfrikaKataster.PridajKatastralUzemie(IdKat, InputNazov);
-            if (uspech == "OK")
+            try
             {
-                Uloha15List.ItemsSource = AfrikaKataster.Uloha15();
+                var InputNazov = InputNazovKatUzemia.Text;
+                var IdKat = int.Parse(InputIDKatUzem.Text);
+                var uspech = AfrikaKataster.PridajKatastralUzemie(IdKat, InputNazov);
+                if (uspech == "OK")
+                {
+                    Uloha15List.ItemsSource = AfrikaKataster.Uloha15();
+                }
+                else
+                {
+                    MessageBox.Show(uspech, "ERR");
+                }
             }
-            else
+            catch (Exception)
             {
-                MessageBox.Show(uspech, "ERR");
+
+                MessageBox.Show("Zle zadane parametre", "ERR");
             }
+           
         }
 
         private void PridajNehnutelnost_Click(object sender, RoutedEventArgs e)
         {
-
-            var SupisCislo = int.Parse(InputSupisCislo.Text);
-            var IdListu = int.Parse(InputListNehnutelnost.Text);
-            var IdKatastru = int.Parse(InputKatasterNehnutelnost.Text);
-            var popis = InputPopis.Text;
-            var adresa = InputAdresa.Text;
-            var uspech = AfrikaKataster.PridajNehnutelnost(IdListu, IdKatastru, adresa, popis, SupisCislo);
-            if (uspech == "OK")
+            try
             {
-                MessageBox.Show("Nehnutelnost uspesne pridana", "OK");
+                var SupisCislo = int.Parse(InputSupisCislo.Text);
+                var IdListu = int.Parse(InputListNehnutelnost.Text);
+                var IdKatastru = int.Parse(InputKatasterNehnutelnost.Text);
+                var popis = InputPopis.Text;
+                var adresa = InputAdresa.Text;
+                var uspech = AfrikaKataster.PridajNehnutelnost(IdListu, IdKatastru, adresa, popis, SupisCislo);
+                if (uspech == "OK")
+                {
+                    MessageBox.Show("Nehnutelnost uspesne pridana", "OK");
+                }
+                else
+                {
+                    MessageBox.Show(uspech, "ERR");
+                }
             }
-            else
+            catch (Exception)
             {
-                MessageBox.Show(uspech, "ERR");
+                MessageBox.Show("Zle zadane parametre", "ERR");
             }
+           
         }
         private void AktivnyPanel(StackPanel aktivny)
         {
@@ -149,10 +175,13 @@ namespace GUI
             }
             aktivny.Visibility = Visibility.Visible;
             var list = AfrikaKataster.VsetkoInfo();
-            LabelKat.Content = "K:"+list[0];
-            LabelList.Content = "L:" + list[2];
-            LabelObcan.Content = "O:" + list[1];
-            LabelNeh.Content = "N:" + list[3];
+            if (list[0]!= -1) {
+                LabelKat.Content = "K:" + list[0];
+                LabelList.Content = "L:" + list[2];
+                LabelObcan.Content = "O:" + list[1];
+                LabelNeh.Content = "N:" + list[3];
+            }
+           
         }
 
         private void Kataster_Click(object sender, RoutedEventArgs e)
@@ -214,9 +243,18 @@ namespace GUI
         {
             if (e.Key == Key.Enter)
             {
-                var idKatastru = int.Parse(InputUloha8CisloKatUzem.Text);
-                var rodCisloObcan = InputUloha8RodCislo.Text;
-                Uloha8List.ItemsSource = AfrikaKataster.Uloha8(rodCisloObcan, idKatastru);
+                try
+                {
+                    var idKatastru = int.Parse(InputUloha8CisloKatUzem.Text);
+                    var rodCisloObcan = InputUloha8RodCislo.Text;
+                    Uloha8List.ItemsSource = AfrikaKataster.Uloha8(rodCisloObcan, idKatastru);
+                }
+                catch (Exception)
+                {
+
+                    MessageBox.Show("Zle zadane parametre", "ERR");
+                }
+               
             }
         }
 
@@ -225,29 +263,46 @@ namespace GUI
 
             if (e.Key == Key.Enter)
             {
-                var idKatastru = int.Parse(InputUloha8CisloKatUzem.Text);
-                var rodCisloObcan = InputUloha8RodCislo.Text;
-                Uloha8List.ItemsSource = AfrikaKataster.Uloha8(rodCisloObcan, idKatastru);
+                try
+                {
+                    var idKatastru = int.Parse(InputUloha8CisloKatUzem.Text);
+                    var rodCisloObcan = InputUloha8RodCislo.Text;
+                    Uloha8List.ItemsSource = AfrikaKataster.Uloha8(rodCisloObcan, idKatastru);
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("Zle zadane parametre", "ERR");
+                }
+               
             }
         }
 
         private void Uloha12BtPridaj_Click(object sender, RoutedEventArgs e)
         {
 
-
-            var rodCislo = InputUloha12RodCislo.Text;
-            var cisloListu = int.Parse(InputUloha12CisloListuVlast.Text);
-            var cisloKatUzem = int.Parse(InputUloha12CisloKatUzem.Text);
-            var majetkovyPodiel = double.Parse(InputUloha12MajetkovyPodiel.Text);
-            var uspech = AfrikaKataster.PridajVlastnika(rodCislo, cisloListu, cisloKatUzem, majetkovyPodiel);
-            if (uspech == "OK")
-            {    
-                Uloha12List.ItemsSource = AfrikaKataster.Uloha12(rodCislo, cisloListu, cisloKatUzem);
-            }
-            else
+            try
             {
-                MessageBox.Show(uspech, "Err");
+                var rodCislo = InputUloha12RodCislo.Text;
+                var cisloListu = int.Parse(InputUloha12CisloListuVlast.Text);
+                var cisloKatUzem = int.Parse(InputUloha12CisloKatUzem.Text);
+                var majetkovyPodiel = double.Parse(InputUloha12MajetkovyPodiel.Text);
+                var uspech = AfrikaKataster.PridajVlastnika(rodCislo, cisloListu, cisloKatUzem, majetkovyPodiel);
+                if (uspech == "OK")
+                {
+                    Uloha12List.ItemsSource = AfrikaKataster.Uloha12(rodCislo, cisloListu, cisloKatUzem);
+                }
+                else
+                {
+                    MessageBox.Show(uspech, "Err");
+                }
             }
+            catch (Exception)
+            {
+
+                MessageBox.Show("Zle zadane parametre", "ERR");
+            }
+
+           
         }
 
         private void InputUloha12CisloListuVlast_TextChanged(object sender, TextChangedEventArgs e)
@@ -267,8 +322,7 @@ namespace GUI
                
                 var rodCislo = InputUloha12RodCislo.Text;
                 var idKatastru = int.Parse(InputUloha12CisloKatUzem.Text);
-                var cisloListu = int.Parse(InputUloha12CisloListuVlast.Text);
-              
+                var cisloListu = int.Parse(InputUloha12CisloListuVlast.Text);    
                 Uloha12List.ItemsSource = AfrikaKataster.Uloha12(rodCislo, cisloListu, idKatastru);
             }
             catch (Exception)
@@ -277,14 +331,6 @@ namespace GUI
                 MessageBox.Show("Zle zadane vstupne parametre", "Err");
             }
 
-        }
-
-        private void Uloha12List_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            var rodneCislo = Uloha12List.SelectedItem.ToString().Substring(13, 16);
-            var majetkovyPodiel = Uloha12List.SelectedItem.ToString().Substring(Uloha12List.SelectedItem.ToString().LastIndexOf(":") + 2);
-            InputUloha12RodCislo.Text = rodneCislo;
-            InputUloha12MajetkovyPodiel.Text = majetkovyPodiel;
         }
 
         private void Uloha12BUloz_Click(object sender, RoutedEventArgs e)
@@ -370,9 +416,17 @@ namespace GUI
 
         private void Uloha1Vyhladaj_Click(object sender, RoutedEventArgs e)
         {
-            var idKatUzem = int.Parse(InputUloha1KatCis.Text);
-            var supisCislo = int.Parse(InputUloha1SupisCis.Text);
-            Uloha1List.ItemsSource = AfrikaKataster.Uloha1(supisCislo,idKatUzem);
+            try
+            {
+                var idKatUzem = int.Parse(InputUloha1KatCis.Text);
+                var supisCislo = int.Parse(InputUloha1SupisCis.Text);
+                Uloha1List.ItemsSource = AfrikaKataster.Uloha1(supisCislo, idKatUzem);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Zle zadane parametre", "ERR");
+            }
+           
         }
 
         private void Uloha2Vyhladaj_Click(object sender, RoutedEventArgs e)
@@ -393,18 +447,35 @@ namespace GUI
 
         private void Uloha3Vyhladaj_Click(object sender, RoutedEventArgs e)
         {
-            var supisCislo = int.Parse(InputUloha3SupisCislo.Text);
-            var katCislo = int.Parse(InputUloha3KatCis.Text);
-            var listCislo = int.Parse(InputUloha3ListCis.Text);
+            try
+            {
+                var supisCislo = int.Parse(InputUloha3SupisCislo.Text);
+                var katCislo = int.Parse(InputUloha3KatCis.Text);
+                var listCislo = int.Parse(InputUloha3ListCis.Text);
 
-            Uloha3List.ItemsSource = AfrikaKataster.Uloha3(katCislo,listCislo,supisCislo);
+                Uloha3List.ItemsSource = AfrikaKataster.Uloha3(katCislo, listCislo, supisCislo);
+            }
+            catch (Exception)
+            {
+
+                MessageBox.Show("Zle zadane parametre", "ERR");
+            }
+           
         }
 
         private void Uloha4Vyhladaj_Click(object sender, RoutedEventArgs e)
         {
-            var idKat = int.Parse(InputUloha4KatCis.Text);
-            var idList = int.Parse(InputUloha4ListCis.Text);
-            Uloha4List.ItemsSource = AfrikaKataster.Uloha4(idKat, idList);
+            try
+            {
+                var idKat = int.Parse(InputUloha4KatCis.Text);
+                var idList = int.Parse(InputUloha4ListCis.Text);
+                Uloha4List.ItemsSource = AfrikaKataster.Uloha4(idKat, idList);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Zle zadane parametre", "ERR");
+            }
+           
         }
 
         private void ButtonUloha4_Click(object sender, RoutedEventArgs e)
@@ -419,10 +490,18 @@ namespace GUI
 
         private void Uloha5Vyhladaj_Click(object sender, RoutedEventArgs e)
         {
-            var nazovNeh = InputUloha5NazovKat.Text;
-            var cisNeh = int.Parse(InputUloha5CisNehnutel.Text);
+            try
+            {
+                var nazovNeh = InputUloha5NazovKat.Text;
+                var cisNeh = int.Parse(InputUloha5CisNehnutel.Text);
 
-            Uloha5List.ItemsSource = AfrikaKataster.Uloha5(nazovNeh, cisNeh);
+                Uloha5List.ItemsSource = AfrikaKataster.Uloha5(nazovNeh, cisNeh);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Zle zadane parametre", "ERR");
+            }
+           
         }
 
         private void ButtonUloha6_Click(object sender, RoutedEventArgs e)
@@ -432,9 +511,17 @@ namespace GUI
 
         private void Uloha6Vyhladaj_Click(object sender, RoutedEventArgs e)
         {
-            var NazovKat = InputUloha6katNazov.Text;
-            var idList = int.Parse(InputUloha6ListCis.Text);
-            Uloha6List.ItemsSource = AfrikaKataster.Uloha6(NazovKat, idList);
+            try
+            {
+                var NazovKat = InputUloha6katNazov.Text;
+                var idList = int.Parse(InputUloha6ListCis.Text);
+                Uloha6List.ItemsSource = AfrikaKataster.Uloha6(NazovKat, idList);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Zle zadane parametre", "ERR");
+            }
+           
         }
 
         private void ButtonUloha9_Click(object sender, RoutedEventArgs e)
@@ -453,20 +540,28 @@ namespace GUI
 
         private void Uloha10Pridaj_Click(object sender, RoutedEventArgs e)
         {
-            var rodCislo = InputUloha10RodCislo.Text;
-
-            var nazovKatuzem = InputUloha10KatCis.Text;
-
-            var supisCsilo = int.Parse(InputUloha10SupisCislo.Text);
-            var uspech = AfrikaKataster.Uloha10(rodCislo, supisCsilo, nazovKatuzem);
-            if (uspech == "OK")
+            try
             {
-                MessageBox.Show("Priradenie trvaleho bydliska bolo uspesne", "OK");
+                var rodCislo = InputUloha10RodCislo.Text;
+
+                var nazovKatuzem = InputUloha10KatCis.Text;
+
+                var supisCsilo = int.Parse(InputUloha10SupisCislo.Text);
+                var uspech = AfrikaKataster.Uloha10(rodCislo, supisCsilo, nazovKatuzem);
+                if (uspech == "OK")
+                {
+                    MessageBox.Show("Priradenie trvaleho bydliska bolo uspesne", "OK");
+                }
+                else
+                {
+                    MessageBox.Show(uspech, "Err");
+                }
             }
-            else
+            catch (Exception)
             {
-                MessageBox.Show(uspech, "Err");
+                MessageBox.Show("Zle zadane parametre", "ERR");
             }
+           
         }
 
         private void ButtonUloha10_Click(object sender, RoutedEventArgs e)
@@ -481,27 +576,43 @@ namespace GUI
 
         private void Uloha11Pridaj_Click(object sender, RoutedEventArgs e)
         {
-            var rodCisloPovod = InputUloha11RodCisloPovod.Text;
-            var rodCisloNove = InputUloha11RodCisloNove.Text;
-            var supisCislo = int.Parse(InputUloha11SupisCislo.Text);
-            var cisKat = int.Parse(InputUloha11KatCis.Text);
-            var uspech = AfrikaKataster.Uloha11(rodCisloPovod,supisCislo,cisKat,rodCisloNove);
-            if (uspech == "OK")
+            try
             {
-                MessageBox.Show("Zmena uspesna", "OK");
+                var rodCisloPovod = InputUloha11RodCisloPovod.Text;
+                var rodCisloNove = InputUloha11RodCisloNove.Text;
+                var supisCislo = int.Parse(InputUloha11SupisCislo.Text);
+                var cisKat = int.Parse(InputUloha11KatCis.Text);
+                var uspech = AfrikaKataster.Uloha11(rodCisloPovod, supisCislo, cisKat, rodCisloNove);
+                if (uspech == "OK")
+                {
+                    MessageBox.Show("Zmena uspesna", "OK");
+                }
+                else
+                {
+                    MessageBox.Show(uspech, "Err");
+                }
             }
-            else
+            catch (Exception)
             {
-                MessageBox.Show(uspech, "Err");
+                MessageBox.Show("Zle zadane parametre", "ERR");
             }
+            
         }
 
         private void Uloha13BZmaz_Click(object sender, RoutedEventArgs e)
         {
-            var idKatastru = int.Parse(InputUloha12CisloKatUzem.Text);
-            var rodCislo = InputUloha12RodCislo.Text;
-            var cisloListu = int.Parse(InputUloha12CisloListuVlast.Text);
-            Uloha12List.ItemsSource = AfrikaKataster.Uloha13(rodCislo, cisloListu, idKatastru);
+            try
+            {
+                var idKatastru = int.Parse(InputUloha12CisloKatUzem.Text);
+                var rodCislo = InputUloha12RodCislo.Text;
+                var cisloListu = int.Parse(InputUloha12CisloListuVlast.Text);
+                Uloha12List.ItemsSource = AfrikaKataster.Uloha13(rodCislo, cisloListu, idKatastru);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Zle zadane parametre", "ERR");
+            }
+           
         }
 
         private void InputKatasUzemieList_KeyUp(object sender, KeyEventArgs e)
@@ -517,8 +628,16 @@ namespace GUI
         {
             if (e.Key == Key.Enter)
             {
-                var cisloKata = int.Parse(InputUloha19Katcislo.Text);
-                Uloha19ListKata.ItemsSource = AfrikaKataster.Uloha19CisloKat(cisloKata);
+                try
+                {
+                    var cisloKata = int.Parse(InputUloha19Katcislo.Text);
+                    Uloha19ListKata.ItemsSource = AfrikaKataster.Uloha19CisloKat(cisloKata);
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("Zle zadane parametre", "ERR");
+                }
+                
             }
         }
 
@@ -526,9 +645,17 @@ namespace GUI
         {
             if (e.Key == Key.Enter)
             {
-                var cisloListu = int.Parse(InputUloha19IdListDel.Text);
-                var cisloKatastru = int.Parse(InputUloha19Katcislo.Text);
-                Uloha19ListListVlast.ItemsSource = AfrikaKataster.Uloha19Listy(cisloKatastru,cisloListu);
+                try
+                {
+                    var cisloListu = int.Parse(InputUloha19IdListDel.Text);
+                    var cisloKatastru = int.Parse(InputUloha19Katcislo.Text);
+                    Uloha19ListListVlast.ItemsSource = AfrikaKataster.Uloha19Listy(cisloKatastru, cisloListu);
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("Zle zadane parametre", "ERR");
+                }
+               
             }
         }
 
@@ -536,29 +663,45 @@ namespace GUI
         {
             if (e.Key == Key.Enter)
             {
-                var cisloListu = int.Parse(InputUloha19IdListNew.Text);
-                var cisloKatastru = int.Parse(InputUloha19Katcislo.Text);
-                Uloha19ListListVlast.ItemsSource = AfrikaKataster.Uloha19Listy(cisloKatastru,cisloListu);
+                try
+                {
+                    var cisloListu = int.Parse(InputUloha19IdListNew.Text);
+                    var cisloKatastru = int.Parse(InputUloha19Katcislo.Text);
+                    Uloha19ListListVlast.ItemsSource = AfrikaKataster.Uloha19Listy(cisloKatastru, cisloListu);
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("Zle zadane parametre", "ERR");
+                }
+               
             }
         }
 
         private void DeleteList_Click(object sender, RoutedEventArgs e)
         {
-            var cisloListuNew = int.Parse(InputUloha19IdListNew.Text);
-            var cisloListuDel = int.Parse(InputUloha19IdListDel.Text);
-            var cisloKatastru = int.Parse(InputUloha19Katcislo.Text);
-            var odpoved = AfrikaKataster.Uloha19(cisloListuDel,cisloKatastru,cisloListuNew);
-            if (odpoved == "OK")
+            try
             {
-                var cisloKata = int.Parse(InputUloha19Katcislo.Text);
-                Uloha19ListKata.ItemsSource = AfrikaKataster.Uloha19CisloKat(cisloKata);
-                Uloha19ListListVlast.ItemsSource = AfrikaKataster.Uloha19Listy(cisloKatastru, cisloListuNew);
-                
+                var cisloListuNew = int.Parse(InputUloha19IdListNew.Text);
+                var cisloListuDel = int.Parse(InputUloha19IdListDel.Text);
+                var cisloKatastru = int.Parse(InputUloha19Katcislo.Text);
+                var odpoved = AfrikaKataster.Uloha19(cisloListuDel, cisloKatastru, cisloListuNew);
+                if (odpoved == "OK")
+                {
+                    var cisloKata = int.Parse(InputUloha19Katcislo.Text);
+                    Uloha19ListKata.ItemsSource = AfrikaKataster.Uloha19CisloKat(cisloKata);
+                    Uloha19ListListVlast.ItemsSource = AfrikaKataster.Uloha19Listy(cisloKatastru, cisloListuNew);
+
+                }
+                else
+                {
+                    MessageBox.Show(odpoved, "Err");
+                }
             }
-            else
+            catch (Exception)
             {
-                MessageBox.Show(odpoved, "Err");
+                MessageBox.Show("Zle zadane parametre", "ERR");
             }
+           
         }
 
         private void ButtonUloha20_Click(object sender, RoutedEventArgs e)
@@ -570,25 +713,42 @@ namespace GUI
         {
             if (e.Key == Key.Enter)
             {
-                var cisloListu = int.Parse(InputUloha20ListCis.Text);
-                var cisloKatastru = int.Parse(InputUloha20KatCis.Text);
-                Uloha20List.ItemsSource = AfrikaKataster.Uloha20Nehnutelnosti(cisloKatastru,cisloListu);
+                try
+                {
+                    var cisloListu = int.Parse(InputUloha20ListCis.Text);
+                    var cisloKatastru = int.Parse(InputUloha20KatCis.Text);
+                    Uloha20List.ItemsSource = AfrikaKataster.Uloha20Nehnutelnosti(cisloKatastru, cisloListu);
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("Zle zadane parametre", "ERR");
+                }
+                
             }
         }
 
         private void Uloha20Zmaz_Click(object sender, RoutedEventArgs e)
         {
-            var cisloListu = int.Parse(InputUloha20ListCis.Text);
-            var cisloKatastru = int.Parse(InputUloha20KatCis.Text);
-            var supisCislo = int.Parse(InputUloha20SupisCislo.Text);
-            var odpoved = AfrikaKataster.Uloha20(supisCislo,cisloListu,cisloKatastru);
-            if (odpoved == "OK")
+            try
             {
-                Uloha20List.ItemsSource = AfrikaKataster.Uloha20Nehnutelnosti(cisloKatastru, cisloListu);
+                var cisloListu = int.Parse(InputUloha20ListCis.Text);
+                var cisloKatastru = int.Parse(InputUloha20KatCis.Text);
+                var supisCislo = int.Parse(InputUloha20SupisCislo.Text);
+                var odpoved = AfrikaKataster.Uloha20(supisCislo, cisloListu, cisloKatastru);
+                if (odpoved == "OK")
+                {
+                    Uloha20List.ItemsSource = AfrikaKataster.Uloha20Nehnutelnosti(cisloKatastru, cisloListu);
+                }
+                else
+                {
+                    MessageBox.Show(odpoved, "Err");
+                }
             }
-            else {
-                MessageBox.Show(odpoved, "Err");
+            catch (Exception)
+            {
+                MessageBox.Show("Zle zadane parametre", "ERR");
             }
+            
 
         }
 
@@ -601,8 +761,16 @@ namespace GUI
         {
             if (e.Key == Key.Enter)
             {
-                var cisloKata = int.Parse(InputUloha22CisloKatNew.Text);
-                Uloha22List.ItemsSource = AfrikaKataster.Uloha22Info(cisloKata);
+                try
+                {
+                    var cisloKata = int.Parse(InputUloha22CisloKatNew.Text);
+                    Uloha22List.ItemsSource = AfrikaKataster.Uloha22Info(cisloKata);
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("Zle zadane parametre", "ERR");
+                }
+                
             }
         }
 
@@ -610,23 +778,33 @@ namespace GUI
         {
             if (e.Key == Key.Enter)
             {
-                var cisloKata = int.Parse(InputUloha22CisloKatDel.Text);
-                Uloha22List.ItemsSource = AfrikaKataster.Uloha22Info(cisloKata);
+                try
+                {
+                    var cisloKata = int.Parse(InputUloha22CisloKatDel.Text);
+                    Uloha22List.ItemsSource = AfrikaKataster.Uloha22Info(cisloKata);
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("Zle zadane parametre", "ERR");
+                }
+                
             }
         }
 
         private void Uloha22Zmaz_Click(object sender, RoutedEventArgs e)
         {
-            var cisloKataNew = int.Parse(InputUloha22CisloKatNew.Text);
-            var cisloKataDel = int.Parse(InputUloha22CisloKatDel.Text);
-            Uloha22List.ItemsSource = AfrikaKataster.Uloha22(cisloKataDel, cisloKataNew);
-        }
-
-        private void StackPanel_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            VsetkoKatastre.ItemsSource = AfrikaKataster.Uloha15();
-            VsetkoObcaniaKatastra.ItemsSource = AfrikaKataster.VsetkoObyvatelstvo();
-            AktivnyPanel(UlohVsetkoPanel);
+            try
+            {
+                var cisloKataNew = int.Parse(InputUloha22CisloKatNew.Text);
+                var cisloKataDel = int.Parse(InputUloha22CisloKatDel.Text);
+                Uloha22List.ItemsSource = AfrikaKataster.Uloha22(cisloKataDel, cisloKataNew);
+                MessageBox.Show("Uspesne zmazane", "ERR");
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Zle zadane parametre", "ERR");
+            }
+         
         }
 
         private void VsetkoKataster_KeyUp(object sender, KeyEventArgs e)
@@ -685,19 +863,66 @@ namespace GUI
             }
         }
 
-        private void VsetkoObcaniaKatastra_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void Generator_Click(object sender, RoutedEventArgs e)
         {
-            try
+            Stopwatch time = Stopwatch.StartNew();
+            AfrikaKataster.Generator();
+            time.Stop();
+            var cas = time.Elapsed;
+            MessageBox.Show("Vygenerovane cas : "+cas, "OK");
+        }
+
+        private void ButtonSave_Click(object sender, RoutedEventArgs e)
+        {
+            Stopwatch time = Stopwatch.StartNew();
+            AfrikaKataster.Uloz();
+            time.Stop();
+            var cas = time.Elapsed;
+            
+            MessageBox.Show("Ulozene time: "+cas, "OK");
+        }
+
+        private void ButtonNacitaj_Click(object sender, RoutedEventArgs e)
+        {
+            Stopwatch time = Stopwatch.StartNew();
+            AfrikaKataster.Nacitaj();
+            time.Stop();
+            var cas = time.Elapsed;
+            
+            MessageBox.Show("Nacitane time: "+cas, "OK");
+        }
+
+        private void VsetkoObcaniaKatastra_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (VsetkoObcaniaKatastra.SelectedItem != null)
             {
                 VsetkoRodCislo.Text = VsetkoObcaniaKatastra.SelectedItem.ToString().Substring(13, 16);
             }
+        }
+
+        private void StackPanel_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            VsetkoKatastre.ItemsSource = AfrikaKataster.Uloha15();
+            VsetkoObcaniaKatastra.ItemsSource = AfrikaKataster.VsetkoObyvatelstvo();
+            AktivnyPanel(UlohVsetkoPanel);
+        }
+
+        private void Uloha12List_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            try
+            {
+                var rodneCislo = Uloha12List.SelectedItem.ToString().Substring(13, 16);
+                var majetkovyPodiel = Uloha12List.SelectedItem.ToString().Substring(Uloha12List.SelectedItem.ToString().LastIndexOf(":") + 2);
+                InputUloha12RodCislo.Text = rodneCislo;
+                InputUloha12MajetkovyPodiel.Text = majetkovyPodiel;
+            }
             catch (Exception)
             {
-
-                
+               // MessageBox.Show("Zle zadane parametre", "ERR");
             }
-            
         }
+
+        
     }
     }
 
